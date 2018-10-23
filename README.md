@@ -4,8 +4,8 @@
 Name: 'Mohsen Najjar'  
 Student Number: '205404098'
 
-Name: 'Your real name'  
-Student Number: 'Your student number'
+Name: 'Muhammad Khatib'  
+Student Number: '203365820'
 
 ### Lecturer
 *Roi Poranne*
