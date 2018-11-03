@@ -36,6 +36,7 @@ public:
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
+	void PrintLineBresenham(const float x1, const float y1, const float x2, const float y2, const glm::vec3& color);
 
 	// Add more methods/functionality as needed...
 };

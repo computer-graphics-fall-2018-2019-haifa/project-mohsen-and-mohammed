@@ -23,18 +23,11 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 void Cleanup(GLFWwindow* window);
 void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset);
 
-void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
-{
-	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
-	
-	// Handle mouse scrolling here...
-}
-
-int main(int argc, char **argv)
+int main(int argc, char ** argv)
 {
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
-	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer");
+	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer - Muhammad && Mohsen");
 	if (!window)
 	{
 		return 1;
@@ -58,9 +51,9 @@ int main(int argc, char **argv)
 	glfwSetScrollCallback(window, ScrollCallback);
 
 	// This is the main game loop..
-    while (!glfwWindowShouldClose(window))
-    {
-        glfwPollEvents();
+	while (!glfwWindowShouldClose(window))
+	{
+		glfwPollEvents();
 		StartFrame();
 
 		// Here we build the menus for the next frame. Feel free to pass more arguments to this function call
@@ -68,11 +61,18 @@ int main(int argc, char **argv)
 
 		// Render the next frame
 		RenderFrame(window, scene, renderer, io);
-    }
+	}
 
 	// If we're here, then we're done. Cleanup memory.
 	Cleanup(window);
-    return 0;
+	return 0;
+}
+
+void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+	
+	// Handle mouse scrolling here...
 }
 
 static void GlfwErrorCallback(int error, const char* description)
@@ -111,8 +111,8 @@ ImGuiIO& SetupDearImgui(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init();
 
 	// Setup style
-	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
+	//ImGui::StyleColorsDark();
+	ImGui::StyleColorsClassic();
 
 	return io;
 }
@@ -156,3 +156,4 @@ void Cleanup(GLFWwindow* window)
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+

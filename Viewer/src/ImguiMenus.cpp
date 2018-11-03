@@ -38,9 +38,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
 
-		ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+		ImGui::Text("Muhammad && Mohsen");               // Display some text (you can use a format strings too)
 		ImGui::Checkbox("Demo Window", &showDemoWindow);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Another Window", &showAnotherWindow);
+		ImGui::Checkbox("Another Window22", &showAnotherWindow);
+		ImGui::Checkbox("Another Window33", &showAnotherWindow);
+		ImGui::Checkbox("Another Window44", &showAnotherWindow);
+		ImGui::Checkbox("Another Window55", &showAnotherWindow);
+
+
 
 		ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
 		ImGui::ColorEdit3("clear color", (float*)&clearColor); // Edit 3 floats representing a color
@@ -53,6 +59,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
+
 
 	// 3. Show another simple window.
 	if (showAnotherWindow)
@@ -92,4 +99,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 			ImGui::EndMainMenuBar();
 		}
 	}
+
 }
+
+
+
+
+

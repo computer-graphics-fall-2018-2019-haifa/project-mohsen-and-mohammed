@@ -23,7 +23,7 @@ Renderer::~Renderer()
 	{
 		delete[] colorBuffer;
 	}
-}
+};
 
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
 {
@@ -32,6 +32,9 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	colorBuffer[INDEX(viewportWidth, i, j, 0)] = color.x;
 	colorBuffer[INDEX(viewportWidth, i, j, 1)] = color.y;
 	colorBuffer[INDEX(viewportWidth, i, j, 2)] = color.z;
+	//colorBuffer[INDEX(viewportWidth, i, j, 0)] = 0.0f;
+	//colorBuffer[INDEX(viewportWidth, i, j, 1)] = 0.0f;
+	//colorBuffer[INDEX(viewportWidth, i, j, 2)] = 0.0f;
 }
 
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
@@ -80,25 +83,87 @@ void Renderer::Render(const Scene& scene)
 	//#############################################
 
 	// Draw a chess board in the middle of the screen
+
+	PrintLineBresenham(100, 1000, 600, 400, glm::vec3(1, 0, 0));
+
+	/*
 	for (int i = 100; i < viewportWidth - 100; i++)
 	{
 		for (int j = 100; j < viewportHeight - 100; j++)
 		{
-			int mod_i = i / 50;
-			int mod_j = j / 50;
+			int mod_i = i / 2;
+			int mod_j = j / 2;
 
 			int odd = (mod_i + mod_j) % 2;
 			if (odd)
 			{
-				putPixel(i, j, glm::vec3(0, 1, 0));
+				putPixel(i, j, glm::vec3(1, 1, 0));
 			}
 			else
 			{
 				putPixel(i, j, glm::vec3(1, 0, 0));
 			}
 		}
+	}*/
+}
+
+
+
+
+
+void Renderer::PrintLineBresenham(const float x1, const float y1, const float x2, const float y2, const glm::vec3& color)
+{
+	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+	if (steep)
+	{
+		PrintLineBresenham(y1, x1, y2, x2, color);
+		return;
+	}
+
+	if (x1 > x2)
+	{
+		PrintLineBresenham(x2, y2, x1, y1, color);
+		return;
+	}
+
+	const float dx = x2 - x1;
+	const float dy = fabs(y2 - y1);
+
+	float error = dx / 2.0f;
+	const int ystep = (y1 < y2) ? 1 : -1;
+	int y = (int)y1;
+
+	const int maxX = (int)x2;
+
+	for (int x = (int)x1; x<maxX; x++)
+	{
+		if (steep)
+		{
+			putPixel(y, x, color);
+		}
+		else
+		{
+			putPixel(x, y, color);
+		}
+
+		error -= dy;
+		if (error < 0)
+		{
+			y += ystep;
+			error += dx;
+		}
 	}
 }
+
+
+
+
+
+
+
+
+
+
 
 //##############################
 //##OpenGL stuff. Don't touch.##
