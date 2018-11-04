@@ -84,7 +84,7 @@ void Renderer::Render(const Scene& scene)
 
 	// Draw a chess board in the middle of the screen
 
-	PrintLineBresenham(100, 1000, 600, 400, glm::vec3(1, 0, 0));
+	PrintLineBresenham(0, 0, 100, 700, glm::vec3(1, 0, 0));
 
 	/*
 	for (int i = 100; i < viewportWidth - 100; i++)
@@ -111,48 +111,36 @@ void Renderer::Render(const Scene& scene)
 
 
 
-void Renderer::PrintLineBresenham(const float x1, const float y1, const float x2, const float y2, const glm::vec3& color)
+void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color)
 {
-	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
-	if (steep)
-	{
-		PrintLineBresenham(y1, x1, y2, x2, color);
-		return;
+	/*the equation of the line wich passes through (x1,y1) and (x2,y2) is
+	y=slope*x + distance*//*,distance=y1-slope*x1*/
+	const float slope = (float)(y2 - y1) / (float)(x2 - x1);
+	int flag=(slope>=0)?1:-1,toFlip=0;
+	if (fabs(slope) > 1) {
+		PrintLineBresenham(y1, x1, y2, x2, color); return;
 	}
-
-	if (x1 > x2)
-	{
-		PrintLineBresenham(x2, y2, x1, y1, color);
-		return;
+	int x=0, y=0, xMax=0, dx=0, dy=0, error=0;
+	if (x1 <= x2) {
+		x = x1; y = y1; xMax = x2; dx = x2 - x1; dy = y2 - y1; 
 	}
-
-	const float dx = x2 - x1;
-	const float dy = fabs(y2 - y1);
-
-	float error = dx / 2.0f;
-	const int ystep = (y1 < y2) ? 1 : -1;
-	int y = (int)y1;
-
-	const int maxX = (int)x2;
-
-	for (int x = (int)x1; x<maxX; x++)
-	{
-		if (steep)
-		{
+	else {
+		x = x2; y = y2; xMax = x1; dx = x1 - x2; dy = y1 - y2; toFlip = 1;
+	}
+	error = -dx;
+	while (x < xMax) {
+		if (flag*error > 0) {
+			y += flag; error -= 2 * dx;
+		}
+		if (toFlip) {
 			putPixel(y, x, color);
 		}
-		else
-		{
+		else {
 			putPixel(x, y, color);
 		}
-
-		error -= dy;
-		if (error < 0)
-		{
-			y += ystep;
-			error += dx;
-		}
+		x++; error = 2 * dy;
 	}
+	
 }
 
 
