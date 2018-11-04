@@ -138,7 +138,7 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 		else {
 			putPixel(x, y, color);
 		}
-		x++; error = 2 * dy;
+		x++; error += 2 * dy;
 	}
 	
 }
