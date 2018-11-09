@@ -84,7 +84,7 @@ void Renderer::Render(const Scene& scene)
 
 	// Draw a chess board in the middle of the screen
 
-	PrintLineBresenham(0, 0, 100, 700, glm::vec3(1, 0, 0));
+	PrintLineBresenham(0, 500, 1500, 500, glm::vec3(1, 0, 0));
 
 	/*
 	for (int i = 100; i < viewportWidth - 100; i++)
@@ -111,21 +111,21 @@ void Renderer::Render(const Scene& scene)
 
 
 
-void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color)
+void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color,int toFlip)
 {
 	/*the equation of the line wich passes through (x1,y1) and (x2,y2) is
 	y=slope*x + distance*//*,distance=y1-slope*x1*/
 	const float slope = (float)(y2 - y1) / (float)(x2 - x1);
-	int flag=(slope>=0)?1:-1,toFlip=0;
+	int flag=(slope>=0)?1:-1/*,toFlip=0*/;
 	if (fabs(slope) > 1) {
-		PrintLineBresenham(y1, x1, y2, x2, color); return;
+		PrintLineBresenham(y1, x1, y2, x2, color,1); return;
 	}
 	int x=0, y=0, xMax=0, dx=0, dy=0, error=0;
 	if (x1 <= x2) {
 		x = x1; y = y1; xMax = x2; dx = x2 - x1; dy = y2 - y1; 
 	}
 	else {
-		x = x2; y = y2; xMax = x1; dx = x1 - x2; dy = y1 - y2; toFlip = 1;
+		x = x2; y = y2; xMax = x1; dx = x1 - x2; dy = y1 - y2; ;
 	}
 	error = -dx;
 	while (x < xMax) {

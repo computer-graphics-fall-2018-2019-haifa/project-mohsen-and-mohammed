@@ -28,7 +28,7 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 
-	void PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color);
+	void PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip = 0);
 
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
