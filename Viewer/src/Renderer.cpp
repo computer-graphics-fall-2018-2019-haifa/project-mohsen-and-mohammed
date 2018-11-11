@@ -84,7 +84,7 @@ void Renderer::Render(const Scene& scene)
 
 	// Draw a chess board in the middle of the screen
 
-	PrintLineBresenham(0, 500, 1500, 500, glm::vec3(1, 0, 0));
+	PrintLineBresenham(0, 0, 300, 100, glm::vec3(1, 0, 0));
 
 	/*
 	for (int i = 100; i < viewportWidth - 100; i++)
@@ -117,7 +117,7 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 	y=slope*x + distance*//*,distance=y1-slope*x1*/
 	const float slope = (float)(y2 - y1) / (float)(x2 - x1);
 	int flag=(slope>=0)?1:-1/*,toFlip=0*/;
-	if (fabs(slope) > 1) {
+	if (fabs(slope) > 1 || x1==x2) {
 		PrintLineBresenham(y1, x1, y2, x2, color,1); return;
 	}
 	int x=0, y=0, xMax=0, dx=0, dy=0, error=0;
@@ -140,7 +140,6 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 		}
 		x++; error += 2 * dy;
 	}
-	
 }
 
 

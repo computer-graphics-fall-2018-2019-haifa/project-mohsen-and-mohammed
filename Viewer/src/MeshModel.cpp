@@ -42,3 +42,13 @@ const std::string& MeshModel::GetModelName()
 {
 	return modelName;
 }
+
+void MeshModel::calculateNormalPerFace() {
+	for (int i=0;i<faces.size();++i) {
+		glm::vec3 newNormal(0, 0, 0);
+		for (int j = 0; j < 3; j++) {
+			newNormal += normals.at(faces.at(i).GetNormalIndex(j));
+		}
+		faces.at(i).SetNormal(Utils::SwitchFromHom(Utils::Scale(glm::vec3(0.33f,0.33f,0.33f))*Utils::HomCoordinats(newNormal)));//TODO: scailing matri
+	}
+}

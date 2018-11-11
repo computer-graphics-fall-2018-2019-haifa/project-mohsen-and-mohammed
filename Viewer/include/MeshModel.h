@@ -31,5 +31,7 @@ public:
 
 	const std::string& GetModelName();
 
+	void calculateNormalPerFace();
+
 	// Add more methods/functionality as needed...
 };

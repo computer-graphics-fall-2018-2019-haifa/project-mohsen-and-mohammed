@@ -35,6 +35,7 @@ Face::Face(std::istream& issLine)
 
 		issLine >> c >> normalIndices.at(i);
 	}
+
 }
 
 Face::~Face()
@@ -55,4 +56,12 @@ const int Face::GetNormalIndex(int index)
 const int Face::GetTextureIndex(int index)
 {
 	return textureIndices[index];
+}
+
+void Face::SetNormal(const glm::vec3& normal) {
+	faceNormal = normal;
+}
+
+const glm::vec3 Face::GetNormal() {
+	return this->faceNormal;
 }
