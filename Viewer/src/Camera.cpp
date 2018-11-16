@@ -8,14 +8,14 @@
 Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	_zoom(1.0)
 {
-	SetCameraLookAt(eye, at, up);
+	//SetCameraLookAt(eye, at, up);
 }
 
 Camera::~Camera()
 {
 }
 
-void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
+/*void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
 	glm::vec4 z = Utils::NormalizeVector(Utils::HomCoordinats(at) - Utils::HomCoordinats(eye));
 	glm::vec4 x = Utils::NormalizeVector(Utils::HomCoordinats(Utils::crossProduct(up,z)));
@@ -23,7 +23,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::vec4 t(0.0f, 0.0f, 0.0f, 1.0f);
 	this->InverseViewTransformation=glm::mat4(x, y, z, t)*Utils::Translate(-eye);
 	this->viewTransformation = glm::inverse(this->InverseViewTransformation);
-}
+}*/
 
 void Camera::SetOrthographicProjection(
 	const float height,
@@ -35,7 +35,7 @@ void Camera::SetOrthographicProjection(
 	this->_aspectRatio = aspectRatio;
 	this->_near = near;
 	this->_far = far;
-	this->pro = ORTH;
+	//this->pro = ORTH;
 	this->projectionTransformation = calculateOrthProjectionMatrix(height, aspectRatio, near, far);
 
 }
@@ -50,7 +50,7 @@ void Camera::SetPerspectiveProjection(
 	this->_aspectRatio = aspectRatio;
 	this->_near = near;
 	this->_far = far;
-	this->pro = PERS;
+	//this->pro = PERS;
 	this->projectionTransformation = calculatePersProjetionMatrix(fovy,aspectRatio,near,far);
 }
 

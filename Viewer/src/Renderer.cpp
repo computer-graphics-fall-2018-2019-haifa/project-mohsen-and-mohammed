@@ -87,8 +87,95 @@ void Renderer::Render(const Scene& scene)
 }
 
 
+void Renderer::printFixedModel(const Scene& scene)
+{
+	if (scene.GetModelCount() > 0)
+	{
+		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
+
+		for (int i = 0; i < myMishModel.GetFacesSize(); i++)
+		{
+			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
+			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
+			const glm::vec3 vec3 = myMishModel.GetVertices(i, 2);
+
+			glm::vec4 nvec1(vec1.x, vec1.y, vec1.z, 1);
+
+			glm::vec4 nvec2(vec2.x, vec2.y, vec2.z, 1);
+
+			glm::vec4 nvec3(vec3.x, vec3.y, vec3.z, 1);
 
 
+			glm::mat4x4 mat44 = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0, };
+
+
+
+			glm::vec4 vec11 = mat44*nvec1;
+			glm::vec4 vec22 = mat44*nvec2;
+			glm::vec4 vec33 = mat44*nvec3;
+
+			glm::vec3 color = glm::vec3(0, 0, 0);
+
+			Line((vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, (vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, color);
+			Line((vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, (vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, color);
+			Line((vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, (vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, color);
+
+		}
+	}
+}
+
+
+
+void Renderer::Line(float x1, float y1, float x2, float y2, glm::vec3& Color)
+{
+	// Bresenham's line algorithm
+	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+	if (steep)
+	{
+		std::swap(x1, y1);
+		std::swap(x2, y2);
+	}
+
+	if (x1 > x2)
+	{
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+
+	const float dx = x2 - x1;
+	const float dy = fabs(y2 - y1);
+
+	float error = dx / 2.0f;
+	const int ystep = (y1 < y2) ? 1 : -1;
+	int y = (int)y1;
+
+	const int maxX = (int)x2;
+
+	for (int x = (int)x1; x<maxX; x++)
+	{
+		if (steep)
+		{
+			putPixel(y, x, Color);
+			//SetPixel(y, x, color);
+		}
+		else
+		{
+			putPixel(x, y, Color);
+			//SetPixel(x, y, color);
+		}
+
+		error -= dy;
+		if (error < 0)
+		{
+			y += ystep;
+			error += dx;
+		}
+	}
+}
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color,int toFlip)
 {
@@ -244,8 +331,12 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color) const {
-	Renderer::PrintLineBresenham(x1, y1,x2,y2,color);
-	Renderer::PrintLineBresenham(x2, y2,x3,y3,color);
-	Renderer::PrintLineBresenham(x3, y3,x1,y1,color);
-}
+/*void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color)  {
+	
+	Line(x1, y1, x2, y2, { 0,0,0 });
+	Line(x2, y2, x3, y3, { 0,0,0 });
+	Line(x3, y3, x1, y1, { 0,0,0 });
+	//Renderer::PrintLineBresenham(x1, y1,x2,y2,color);
+	//Renderer::PrintLineBresenham(x2, y2,x3,y3,color);
+	//Renderer::PrintLineBresenham(x3, y3,x1,y1,color);
+}*/
