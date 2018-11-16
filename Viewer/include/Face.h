@@ -6,17 +6,18 @@
 
 class Face
 {
-private:
+public:
+//private:
 	std::vector<int> vertexIndices;
 	std::vector<int> normalIndices;
 	std::vector<int> textureIndices;
 	
 	glm::vec3 faceNormal;
 
-public:
+//public:
 	Face(std::istream& issLine);
 	virtual ~Face();
-	const int Face::GetVertexIndex(int index);
+	const int Face::GetVertexIndex(int index) const;
 	const int Face::GetNormalIndex(int index);
 	const int Face::GetTextureIndex(int index);
 	

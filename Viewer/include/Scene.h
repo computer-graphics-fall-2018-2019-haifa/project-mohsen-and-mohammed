@@ -36,4 +36,10 @@ public:
 	const int GetActiveModelIndex() const;
 
 	// Add more methods as needed...
+
+
+	const std::vector<Face>& GetModelFaces(int index) const;
+	const std::vector<glm::vec3>& GetVertices(int index) const;
+
+	const MeshModel& GetModel(int index) const;
 };
