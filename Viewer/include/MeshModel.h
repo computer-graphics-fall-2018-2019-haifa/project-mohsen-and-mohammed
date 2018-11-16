@@ -33,5 +33,10 @@ public:
 
 	void calculateNormalPerFace();
 
-	// Add more methods/functionality as needed...
+	
+
+
+	const std::vector<Face>& GetModelFaces() const;
+	const glm::vec3 GetVertices(int indexFace, int indexVertex) const;
+	int  GetFacesSize() const;
 };

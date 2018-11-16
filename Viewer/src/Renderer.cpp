@@ -77,34 +77,13 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
-	//#############################################
-	//## You should override this implementation ##
-	//## Here you should render the scene.       ##
-	//#############################################
-
-	// Draw a chess board in the middle of the screen
-
-	PrintLineBresenham(0, 0, 300, 100, glm::vec3(1, 0, 0));
-
-	/*
-	for (int i = 100; i < viewportWidth - 100; i++)
+	if (scene.GetModelCount() > 0)
 	{
-		for (int j = 100; j < viewportHeight - 100; j++)
-		{
-			int mod_i = i / 2;
-			int mod_j = j / 2;
+		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
+		printFixedModel(scene);
+	}
 
-			int odd = (mod_i + mod_j) % 2;
-			if (odd)
-			{
-				putPixel(i, j, glm::vec3(1, 1, 0));
-			}
-			else
-			{
-				putPixel(i, j, glm::vec3(1, 0, 0));
-			}
-		}
-	}*/
+	
 }
 
 
@@ -263,4 +242,10 @@ void Renderer::SwapBuffers()
 
 	// Finally renders the data.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color) const {
+	Renderer::PrintLineBresenham(x1, y1,x2,y2,color);
+	Renderer::PrintLineBresenham(x2, y2,x3,y3,color);
+	Renderer::PrintLineBresenham(x3, y3,x1,y1,color);
 }

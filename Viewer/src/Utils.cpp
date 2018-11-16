@@ -106,7 +106,7 @@ std::string Utils::GetFileName(const std::string& filePath)
 
 glm::vec3 Utils::SwitchFromHom(const glm::vec4& vector) {
 	if (vector.z != 0) {
-		return glm::vec3(vector.w / vector.z, vector.x / vector.z, vector.y / vector.z);
+		return glm::vec3(vector.x / vector.w, vector.y / vector.w, vector.z / vector.w);
 	}
 	else {
 		std::cout << "invalid vector!." << std::endl;
@@ -186,4 +186,18 @@ glm::mat4& Utils::RotateAround(const float theta, const glm::vec3& point,const g
 	glm::mat4 moveToOrigin = Utils::RotateOrigin(-thetaY, Y)*Utils::RotateOrigin(-thetaX, X)*Utils::Translate(minusPoint);
 	glm::mat4 moveToOriginInverse = Utils::Translate(point)*Utils::RotateOrigin(thetaX,X)*Utils::RotateOrigin(thetaY,Y);
 	return moveToOriginInverse*Utils::RotateOrigin(theta,Z)*moveToOrigin;
+}
+
+glm::vec4& Utils::NormalizeVector(const glm::vec4& vector1) {
+	glm::vec3 vector = Utils::SwitchFromHom(vector1);
+	const float normal = 1/sqrtf(vector.x*vector.x + vector.y*vector.y+ vector.z*vector.z);
+	return Utils::Scale(glm::vec3(normal,normal,normal))*HomCoordinats(vector);
+}
+
+glm::mat4& Utils::ViewPortTramsform(const int left, const int right, const int buttom, const int top) {
+	glm::vec4 row1((right-left)/(2.0f),0,0,(left+right)/(2.0f));
+	glm::vec4 row2(0,(top-buttom)/(2.0f),0,(top+buttom)/(2.0f));
+	glm::vec4 row3(0,0,0.50f,0.50f);
+	glm::vec4 row4(0,0,0,1);
+	return glm::mat4(row1, row2, row3, row4);
 }
