@@ -43,17 +43,17 @@ Face::~Face()
 
 }
 
-const int Face::GetVertexIndex(int index) const
+const int Face::GetVertexIndex(int index)
 {
 	return vertexIndices[index];
 }
 
-const int Face::GetNormalIndex(int index) const
+const int Face::GetNormalIndex(int index)
 {
 	return normalIndices[index];
 }
 
-const int Face::GetTextureIndex(int index) const
+const int Face::GetTextureIndex(int index)
 {
 	return textureIndices[index];
 }
@@ -62,6 +62,6 @@ void Face::SetNormal(const glm::vec3& normal) {
 	faceNormal = normal;
 }
 
-const glm::vec3 Face::GetNormal() const{
+const glm::vec3 Face::GetNormal() {
 	return this->faceNormal;
 }
