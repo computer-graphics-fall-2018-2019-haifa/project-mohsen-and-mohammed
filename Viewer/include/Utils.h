@@ -29,6 +29,8 @@ public:
 	static glm::mat4& Translate(const glm::vec3& translateVec);
 	static glm::mat4& RotateOrigin(const float theta, const AXIS axis);
 	static glm::mat4& RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction);
+	static glm::mat4& ViewPortTramsform(const int left,const int right,const int buttom,const int top);
+	static glm::vec4& NormalizeVector(const glm::vec4&);
 	
 	
 private:

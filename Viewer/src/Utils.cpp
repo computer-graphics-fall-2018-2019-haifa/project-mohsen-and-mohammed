@@ -187,3 +187,4 @@ glm::mat4& Utils::RotateAround(const float theta, const glm::vec3& point,const g
 	glm::mat4 moveToOriginInverse = Utils::Translate(point)*Utils::RotateOrigin(thetaX,X)*Utils::RotateOrigin(thetaY,Y);
 	return moveToOriginInverse*Utils::RotateOrigin(theta,Z)*moveToOrigin;
 }
+

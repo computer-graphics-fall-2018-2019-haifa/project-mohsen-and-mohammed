@@ -59,8 +59,6 @@ const int Scene::GetActiveModelIndex() const
 
 
 
-
-
 const std::vector<Face>& Scene::GetModelFaces(int index) const
 {
 	return models[index].get()->GetModelFaces();
@@ -82,7 +80,7 @@ glm::mat4(1,0,0,0
 
 const MeshModel& Scene::GetModel(int index) const
 {
-	auto a=models[index];
+	auto a = models[index];
 	return *a.get();
 
 }
