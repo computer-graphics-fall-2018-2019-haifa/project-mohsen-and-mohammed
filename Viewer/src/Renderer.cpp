@@ -1,5 +1,5 @@
 #define _USE_MATH_DEFINES
-
+#include <iostream>
 #include "Renderer.h"
 #include "InitShader.h"
 #include "MeshModel.h"
@@ -44,7 +44,7 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 		delete[] colorBuffer;
 	}
 
-	colorBuffer = new float[3* viewportWidth * viewportHeight];
+	colorBuffer = new float[3 * viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++)
 	{
 		for (int y = 0; y < viewportHeight; y++)
@@ -77,6 +77,54 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
+	if (scene.GetModelCount() > 0)
+	{
+		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
+		printFixedModel(scene);
+		/*for (int i = 0; i < myMishModel.GetFacesSize(); i++)
+		{
+			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
+			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
+			const glm::vec3 vec3 = myMishModel.GetVertices(i, 2);
+
+			glm::vec4 nvec1(vec1.x, vec1.y, vec1.z, 1);
+
+			glm::vec4 nvec2(vec2.x, vec2.y, vec2.z, 1);
+
+			glm::vec4 nvec3(vec3.x, vec3.y, vec3.z, 1);
+
+
+			glm::mat4x4 mat44 = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0, };
+
+			
+			//mat44=scene.GetActiveCameraIndex()
+
+			
+
+			glm::vec4 vec11 = mat44*nvec1;
+			glm::vec4 vec22 = mat44*nvec2;
+			glm::vec4 vec33 = mat44*nvec3;
+
+			glm::vec3 color = glm::vec3(0, 0, 0);
+
+			Line((vec11.x + 1)*100+200, (vec11.y + 1) * 100 + 200, (vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, color);
+			Line((vec22.x + 1) *100+200, (vec22.y + 1) * 100 + 200, (vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, color);
+			Line((vec33.x + 1) * 100+200, (vec33.y + 1) * 100 + 200, (vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, color);
+
+			//PrintLineBresenham(499, 498, 497, 499, color);
+			//std::cout << "x=" << (vec11.x + 5) * 100 << " y=" << (vec22.x + 5) * 100 << " z=" << (vec11.y + 5) * 100  << "lrb3 " << (vec22.y + 5) * 100 << "\n";
+			//PrintLineBresenham((vec11.x + 1) * 100, (vec11.y + 1) * 100, (vec22.x + 1) * 100, (vec22.y + 1) * 100, color);
+			//PrintLineBresenham((vec22.x + 51)*100, (vec22.y+51) * 100, (vec33.x+51) * 100, (vec33.y+51) * 100, color);
+			//PrintLineBresenham((vec33.x + 51) * 100, (vec33.y + 51) * 100, (vec11.x + 51) * 100, (vec11.y + 51) * 100, color);
+
+		}*/
+
+	}
+
 	//#############################################
 	//## You should override this implementation ##
 	//## Here you should render the scene.       ##
@@ -89,40 +137,82 @@ void Renderer::Render(const Scene& scene)
 	/*
 	for (int i = 100; i < viewportWidth - 100; i++)
 	{
-		for (int j = 100; j < viewportHeight - 100; j++)
-		{
-			int mod_i = i / 2;
-			int mod_j = j / 2;
+	for (int j = 100; j < viewportHeight - 100; j++)
+	{
+	int mod_i = i / 2;
+	int mod_j = j / 2;
 
-			int odd = (mod_i + mod_j) % 2;
-			if (odd)
-			{
-				putPixel(i, j, glm::vec3(1, 1, 0));
-			}
-			else
-			{
-				putPixel(i, j, glm::vec3(1, 0, 0));
-			}
-		}
+	int odd = (mod_i + mod_j) % 2;
+	if (odd)
+	{
+	putPixel(i, j, glm::vec3(1, 1, 0));
+	}
+	else
+	{
+	putPixel(i, j, glm::vec3(1, 0, 0));
+	}
+	}
 	}*/
+
 }
 
 
 
+void Renderer::printFixedModel(const Scene& scene) 
+{
+	if (scene.GetModelCount() > 0)
+	{
+		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
+
+		for (int i = 0; i < myMishModel.GetFacesSize(); i++)
+		{
+			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
+			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
+			const glm::vec3 vec3 = myMishModel.GetVertices(i, 2);
+
+			glm::vec4 nvec1(vec1.x, vec1.y, vec1.z, 1);
+
+			glm::vec4 nvec2(vec2.x, vec2.y, vec2.z, 1);
+
+			glm::vec4 nvec3(vec3.x, vec3.y, vec3.z, 1);
 
 
-void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color,int toFlip)
+			glm::mat4x4 mat44 = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0, };
+
+		
+
+			glm::vec4 vec11 = mat44*nvec1;
+			glm::vec4 vec22 = mat44*nvec2;
+			glm::vec4 vec33 = mat44*nvec3;
+
+			glm::vec3 color = glm::vec3(0, 0, 0);
+
+			Line((vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, (vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, color);
+			Line((vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, (vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, color);
+			Line((vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, (vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, color);
+
+	    }
+    }
+}
+
+void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip)
 {
 	/*the equation of the line wich passes through (x1,y1) and (x2,y2) is
 	y=slope*x + distance*//*,distance=y1-slope*x1*/
-	const float slope = (float)(y2 - y1) / (float)(x2 - x1);
-	int flag=(slope>=0)?1:-1/*,toFlip=0*/;
-	if (fabs(slope) > 1 || x1==x2) {
-		PrintLineBresenham(y1, x1, y2, x2, color,1); return;
+	float slope = 0.0;
+	if (x2 != x1) slope = (float)(y2 - y1) / (float)(x2 - x1);
+	int flag = (slope >= 0) ? 1 : -1/*,toFlip=0*/;
+	if (fabs(slope) > 1 || (x1 == x2)) {
+		PrintLineBresenham(y1, x1, y2, x2, color, 1);
+		return;
 	}
-	int x=0, y=0, xMax=0, dx=0, dy=0, error=0;
+	int x = 0, y = 0, xMax = 0, dx = 0, dy = 0, error = 0;
 	if (x1 <= x2) {
-		x = x1; y = y1; xMax = x2; dx = x2 - x1; dy = y2 - y1; 
+		x = x1; y = y1; xMax = x2; dx = x2 - x1; dy = y2 - y1;
 	}
 	else {
 		x = x2; y = y2; xMax = x1; dx = x1 - x2; dy = y1 - y2; ;
@@ -146,6 +236,52 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 
 
 
+void Renderer::Line(float x1, float y1,  float x2,  float y2, glm::vec3& Color)
+{
+	// Bresenham's line algorithm
+	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
+	if (steep)
+	{
+		std::swap(x1, y1);
+		std::swap(x2, y2);
+	}
+
+	if (x1 > x2)
+	{
+		std::swap(x1, x2);
+		std::swap(y1, y2);
+	}
+
+	const float dx = x2 - x1;
+	const float dy = fabs(y2 - y1);
+
+	float error = dx / 2.0f;
+	const int ystep = (y1 < y2) ? 1 : -1;
+	int y = (int)y1;
+
+	const int maxX = (int)x2;
+
+	for (int x = (int)x1; x<maxX; x++)
+	{
+		if (steep)
+		{
+			putPixel(y, x, Color);
+			//SetPixel(y, x, color);
+		}
+		else
+		{
+			putPixel(x, y, Color);
+			//SetPixel(x, y, color);
+		}
+
+		error -= dy;
+		if (error < 0)
+		{
+			y += ystep;
+			error += dx;
+		}
+	}
+}
 
 
 
@@ -180,28 +316,28 @@ void Renderer::initOpenGLRendering()
 	//	     | \ | <--- The exture is drawn over two triangles that stretch over the screen.
 	//	     |__\|
 	// (-1,-1)    (1,-1)
-	const GLfloat vtc[]={
+	const GLfloat vtc[] = {
 		-1, -1,
-		 1, -1,
+		1, -1,
 		-1,  1,
 		-1,  1,
-		 1, -1,
-		 1,  1
+		1, -1,
+		1,  1
 	};
 
-	const GLfloat tex[]={
+	const GLfloat tex[] = {
 		0,0,
 		1,0,
 		0,1,
 		0,1,
 		1,0,
-		1,1};
+		1,1 };
 
 	// Makes this buffer the current one.
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
 	// This is the opengl way for doing malloc on the gpu. 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc)+sizeof(tex), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vtc) + sizeof(tex), NULL, GL_STATIC_DRAW);
 
 	// memcopy vtc to buffer[0,sizeof(vtc)-1]
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vtc), vtc);
@@ -210,25 +346,25 @@ void Renderer::initOpenGLRendering()
 	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vtc), sizeof(tex), tex);
 
 	// Loads and compiles a sheder.
-	GLuint program = InitShader( "vshader.glsl", "fshader.glsl" );
+	GLuint program = InitShader("vshader.glsl", "fshader.glsl");
 
 	// Make this program the current one.
 	glUseProgram(program);
 
 	// Tells the shader where to look for the vertex position data, and the data dimensions.
-	GLint  vPosition = glGetAttribLocation( program, "vPosition" );
-	glEnableVertexAttribArray( vPosition );
-	glVertexAttribPointer( vPosition,2,GL_FLOAT,GL_FALSE,0,0 );
+	GLint  vPosition = glGetAttribLocation(program, "vPosition");
+	glEnableVertexAttribArray(vPosition);
+	glVertexAttribPointer(vPosition, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	// Same for texture coordinates data.
-	GLint  vTexCoord = glGetAttribLocation( program, "vTexCoord" );
-	glEnableVertexAttribArray( vTexCoord );
-	glVertexAttribPointer( vTexCoord,2,GL_FLOAT,GL_FALSE,0,(GLvoid *)sizeof(vtc) );
+	GLint  vTexCoord = glGetAttribLocation(program, "vTexCoord");
+	glEnableVertexAttribArray(vTexCoord);
+	glVertexAttribPointer(vTexCoord, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(vtc));
 
 	//glProgramUniform1i( program, glGetUniformLocation(program, "texture"), 0 );
 
 	// Tells the shader to use GL_TEXTURE0 as the texture id.
-	glUniform1i(glGetUniformLocation(program, "texture"),0);
+	glUniform1i(glGetUniformLocation(program, "texture"), 0);
 }
 
 void Renderer::createOpenGLBuffer()
