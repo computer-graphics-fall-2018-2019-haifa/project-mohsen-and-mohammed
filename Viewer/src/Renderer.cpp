@@ -80,8 +80,8 @@ void Renderer::Render(const Scene& scene)
 	if (scene.GetModelCount() > 0)
 	{
 		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
-
-		for (int i = 0; i < myMishModel.GetFacesSize(); i++)
+		printFixedModel(scene);
+		/*for (int i = 0; i < myMishModel.GetFacesSize(); i++)
 		{
 			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
 			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
@@ -100,10 +100,10 @@ void Renderer::Render(const Scene& scene)
 				0, 0, 0, 0,
 				0, 0, 0, 0, };
 
-			/*
-			mat44=scene.GetActiveCameraIndex()
+			
+			//mat44=scene.GetActiveCameraIndex()
 
-			*/
+			
 
 			glm::vec4 vec11 = mat44*nvec1;
 			glm::vec4 vec22 = mat44*nvec2;
@@ -121,8 +121,7 @@ void Renderer::Render(const Scene& scene)
 			//PrintLineBresenham((vec22.x + 51)*100, (vec22.y+51) * 100, (vec33.x+51) * 100, (vec33.y+51) * 100, color);
 			//PrintLineBresenham((vec33.x + 51) * 100, (vec33.y + 51) * 100, (vec11.x + 51) * 100, (vec11.y + 51) * 100, color);
 
-
-		}
+		}*/
 
 	}
 
@@ -159,7 +158,46 @@ void Renderer::Render(const Scene& scene)
 
 
 
+void Renderer::printFixedModel(const Scene& scene) 
+{
+	if (scene.GetModelCount() > 0)
+	{
+		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
 
+		for (int i = 0; i < myMishModel.GetFacesSize(); i++)
+		{
+			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
+			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
+			const glm::vec3 vec3 = myMishModel.GetVertices(i, 2);
+
+			glm::vec4 nvec1(vec1.x, vec1.y, vec1.z, 1);
+
+			glm::vec4 nvec2(vec2.x, vec2.y, vec2.z, 1);
+
+			glm::vec4 nvec3(vec3.x, vec3.y, vec3.z, 1);
+
+
+			glm::mat4x4 mat44 = {
+				1, 0, 0, 0,
+				0, 1, 0, 0,
+				0, 0, 0, 0,
+				0, 0, 0, 0, };
+
+		
+
+			glm::vec4 vec11 = mat44*nvec1;
+			glm::vec4 vec22 = mat44*nvec2;
+			glm::vec4 vec33 = mat44*nvec3;
+
+			glm::vec3 color = glm::vec3(0, 0, 0);
+
+			Line((vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, (vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, color);
+			Line((vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, (vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, color);
+			Line((vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, (vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, color);
+
+	    }
+    }
+}
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip)
 {

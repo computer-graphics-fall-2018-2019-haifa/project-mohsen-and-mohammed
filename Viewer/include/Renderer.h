@@ -34,6 +34,7 @@ private:
 
 
 	void Line( float x1, float y1, float x2,  float y2, glm::vec3& Color);
+	void Renderer::printFixedModel(const Scene& scene) ;
 
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
