@@ -62,6 +62,6 @@ void Face::SetNormal(const glm::vec3& normal) {
 	faceNormal = normal;
 }
 
-const glm::vec3 Face::GetNormal()  const {
+const glm::vec3 Face::GetNormal() const{
 	return this->faceNormal;
 }

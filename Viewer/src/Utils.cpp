@@ -105,8 +105,8 @@ std::string Utils::GetFileName(const std::string& filePath)
 }
 
 glm::vec3 Utils::SwitchFromHom(const glm::vec4& vector) {
-	if (vector.z != 0) {
-		return glm::vec3(vector.w / vector.z, vector.x / vector.z, vector.y / vector.z);
+	if (vector.w != 0) {
+		return glm::vec3(vector.x / vector.w, vector.y / vector.w, vector.z / vector.w);
 	}
 	else {
 		std::cout << "invalid vector!." << std::endl;
@@ -122,14 +122,14 @@ float Utils::dotProduct(const glm::vec3& vector1, const glm::vec3& vector2) {
 	return vector1.x*vector2.x + vector1.y*vector2.y + vector1.z*vector2.z;
 }
 
-glm::vec3& Utils::crossProduct(const glm::vec3& v1,const glm::vec3& v2) {
+glm::vec3 Utils::crossProduct(const glm::vec3& v1,const glm::vec3& v2) {
 	const float x = v1.y*v2.z - v1.z*v2.y;
 	const float y = -v1.x*v2.z+v1.z*v2.x;
 	const float z = v1.x*v2.y-v1.y*v2.x;
 	return glm::vec3(x, y, z);
 }
 
-glm::mat4& Utils::ReflectAxis(AXIS axis) {
+glm::mat4 Utils::ReflectAxis(AXIS axis) {
 	typedef glm::vec4 myVec;
 	if (axis == X) {
 		return glm::mat4(myVec(-1, 0, 0, 0), myVec(0, 1, 0, 0), myVec(0, 0, 1, 0), myVec(0, 0, 0, 1));
@@ -146,7 +146,7 @@ glm::mat4& Utils::ReflectByPlane(const glm::vec3& vector1,const glm::vec3& vecto
 
 }
 */
-glm::mat4& Utils::Scale(const glm::vec3& vector) {
+glm::mat4 Utils::Scale(const glm::vec3& vector) {
 	glm::vec4 row1(vector.x,0,0,0);
 	glm::vec4 row2(0,vector.y,0,0);
 	glm::vec4 row3(0,0,vector.z,0);
@@ -154,7 +154,7 @@ glm::mat4& Utils::Scale(const glm::vec3& vector) {
 	return glm::mat4(row1, row2, row3, row4);
 }
 
-glm::mat4& Utils::Translate(const glm::vec3& vector) {
+glm::mat4 Utils::Translate(const glm::vec3& vector) {
 	glm::vec4 row1(1, 0, 0, vector.x);
 	glm::vec4 row2(0, 1, 0, vector.y);
 	glm::vec4 row3(0, 0, 1, vector.z);
@@ -162,20 +162,20 @@ glm::mat4& Utils::Translate(const glm::vec3& vector) {
 	return glm::mat4(row1, row2, row3, row4);
 }
 
-glm::mat4& Utils::RotateOrigin(const float theta,const AXIS around) {
+glm::mat4 Utils::RotateOrigin(const float theta,const AXIS around) {
 	typedef  glm::vec4 myVec;
 	if (around == X) {
 		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, cos(theta), -sin(theta), 0), myVec(0, sin(theta), cos(theta), 0), myVec(0, 0, 0, 1));
 	}
 	else if (around == Y) {
-		return glm::mat4(myVec(cos(theta), 0, sin(theta), 0), myVec(0, 1, 0, 0), myVec(-sin(theta), 0, cos(theta), 0), myVec(0, 0, 0, 0));
+		return glm::mat4(myVec(cos(theta), 0, -sin(theta), 0), myVec(0, 1, 0, 0), myVec(sin(theta), 0, cos(theta), 0), myVec(0, 0, 0, 0));
 	}
 	else {
 		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, cos(theta), -sin(theta), 0), myVec(0, sin(theta), cos(theta), 0), myVec(0, 0, 0, 1));
 	}
 }
 
-glm::mat4& Utils::RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction) {
+glm::mat4 Utils::RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction) {
 	const float x=direction.x-point.x;
 	const float y = direction.y - point.y;
 	const float z = direction.z - point.z;
@@ -188,3 +188,18 @@ glm::mat4& Utils::RotateAround(const float theta, const glm::vec3& point,const g
 	return moveToOriginInverse*Utils::RotateOrigin(theta,Z)*moveToOrigin;
 }
 
+glm::vec3 Utils::NormalizeVector(const glm::vec3& vector1) {
+	//std::cout << "x " << vector1.x <<" y "<< vector1.y << " z "<< vector1.z<<std::endl;
+	//glm::vec3 vector = Utils::SwitchFromHom(vector1);
+	const float normal = 1/sqrtf(vector1.x*vector1.x + vector1.y*vector1.y+ vector1.z*vector1.z);
+	//std::cout << "normal " << 1 / normal << std::endl;
+	return glm::vec3(normal,normal,normal)*vector1;
+}
+
+glm::mat4 Utils::ViewPortTramsform(const float left, const float right, const float buttom, const float top) {
+	glm::vec4 row1((right-left)/(2.0f),0,0,(left+right)/(2.0f));
+	glm::vec4 row2(0,(top-buttom)/(2.0f),0,(top+buttom)/(2.0f));
+	glm::vec4 row3(0,0,0.50f,0.50f);
+	glm::vec4 row4(0,0,0,1);
+	return glm::mat4(row1, row2, row3, row4);
+}

@@ -28,10 +28,9 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 
-	void PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip = 0);
-	void Line(float x1, float y1, float x2, float y2, glm::vec3& Color);
-	void Renderer::printFixedModel(const Scene& scene);
-
+	void PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip = 0,int fllag=0) ;
+	/*void Renderer::Draw_Line_Bresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color, bool flip=false);
+	void matsav_zevel_Bresenham(int x1, int y1, int x2, int y2,const  glm::vec3& Color);*/
 
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
@@ -41,12 +40,10 @@ public:
 	void SwapBuffers();
 	void ClearColorBuffer(const glm::vec3& color);
 	void SetViewport(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
-	
-	void drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3 , const glm::vec3& color) const;
-	void printModel(int index);
 
+	void drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3 , const glm::vec3& color) ;
 
-	// Add more methods/functionality as needed...
+	void UpdateWorldTransform(const Scene& scene) const;
+	void UpdateViewTransform(const Scene& scene) const;
+
 };
-
-

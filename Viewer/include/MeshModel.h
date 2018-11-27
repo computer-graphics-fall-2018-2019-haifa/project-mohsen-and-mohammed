@@ -18,7 +18,8 @@ private:
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
-
+	float getMinXAfterTranformX(const glm::mat4& Transform)const;
+	float getMaxAfterTransformX(const glm::mat4& Tranform)const;
 public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
 	virtual ~MeshModel();
@@ -33,11 +34,17 @@ public:
 
 	void calculateNormalPerFace();
 
-	
+	const std::vector<glm::vec3> GetVertices(const int faceIndex)const;
 
+	int GetVerticesCount()const;
 
-	const std::vector<Face>& GetModelFaces() const;
-	const glm::vec3 GetVertices(int indexFace, int indexVertex) const;
-	int  GetFacesSize() const;
+	void printV()const;
+
+	float getMaxX()const;
+	float getMaxY()const;
+	float getMaxZ()const;
+	float getMinX()const;
+	float getMinY()const;
+	float getMinZ()const;
+	// Add more methods/functionality as needed...
 };
-

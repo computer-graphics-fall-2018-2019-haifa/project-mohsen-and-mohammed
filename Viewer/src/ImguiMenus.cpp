@@ -17,12 +17,46 @@ bool showDemoWindow = false;
 bool showAnotherWindow = false;
 
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
-
+glm::vec3 meshColor = glm::vec3(0.0f, 0.0f, 0.0f);
+float rotateX = 0.0f;
+float rotateY = 0.0f;
+float rotateZ = 0.0f;
+bool normalPerFace = false;
+bool normalPerVertix = false;
+bool boundingBox = false;
+float scale = 1;
+float zoom = 1;
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
 }
 
+const glm::vec3& GetMeshColor() {
+	return meshColor;
+}
+
+float GetXAxisRotation() {
+	return rotateX;
+}
+
+float GetYAxisRotation() {
+	return rotateY;
+}
+
+float GetZAxisRotation() {
+	return rotateZ;
+}
+
+bool DrawFaceNormal() {
+	return normalPerFace;
+}
+
+bool DrawVertixNormal() {
+	return normalPerVertix;
+}
+bool DrawBoundingBox() {
+	return boundingBox;
+}
 void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 {
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
@@ -100,7 +134,52 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		}
 	}
 
+	//selecting color
+	{
+		static float color[3] = { 0,0,0 };
+		ImGui::ColorEdit3("Color", color);
+		meshColor.x = color[0];
+		meshColor.y = color[1];
+		meshColor.z = color[2];
+	}
+
+	//rotations in model frame
+	{
+		//X axis
+		/*static float ThetaX = 0.0f;*/
+		ImGui::SliderFloat("X rotate",&rotateX,0.0f,360.0f);
+		//Y axis
+		static float ThetaY = 0.0f;
+		ImGui::SliderFloat("Y rotate", &rotateY, 0.0f, 360.0f);
+		//Z axis
+		static float ThetaZ = 0.0f;
+		ImGui::SliderFloat("Z rotate", &rotateZ, 0.0f, 360.0f);
+		/*rotateX = ThetaX;
+		rotateY = ThetaY;
+		rotateZ = ThetaZ;*/
+	}
+	//draw normal per vertix
+	{
+		ImGui::Checkbox("Normal Per Face",&normalPerVertix);
+	}
+	//draw normal per face
+	{
+		ImGui::Checkbox("Normal Per Face", &normalPerFace);
+	}
+	//draw bounding box
+	{
+		ImGui::Checkbox("Bounding Box", &boundingBox);
+	}
+	//sclae mode
+	{
+		ImGui::InputFloat("Scale", &scale);
+	}
+	//camera zoom
+	{
+		ImGui::InputFloat("Zoom", &zoom);
+	}
 }
+
 
 
 

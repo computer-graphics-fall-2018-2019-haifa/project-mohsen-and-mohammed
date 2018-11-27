@@ -3,11 +3,26 @@
 #include "Renderer.h"
 #include "InitShader.h"
 #include "MeshModel.h"
+#include "ImguiMenus.h"
 #include <imgui/imgui.h>
 #include <vector>
 #include <cmath>
-
+#include <iostream>
+#define _USE_MATH_DEFINES
+#include <math.h>
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+
+
+
+static void printS(glm::vec3 vector) {
+	std::cout << "vector before:" << std::endl;
+	std::cout << "x " << vector.x << " y " << vector.y << " z " << vector.z << std::endl;
+}
+
+static void printSS(glm::vec3 vector) {
+	std::cout << "vector after:" << std::endl;
+	std::cout << "x " << vector.x << " y " << vector.y << " z " << vector.z << std::endl;
+}
 
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
@@ -77,62 +92,42 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
-	if (scene.GetModelCount() > 0)
-	{
-		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
-		printFixedModel(scene);
-	}
-
-	
-}
-
-
-void Renderer::printFixedModel(const Scene& scene)
-{
-	if (scene.GetModelCount() > 0)
-	{
-		const MeshModel& myMishModel = scene.GetModel(scene.GetActiveModelIndex());
-
-		for (int i = 0; i < myMishModel.GetFacesSize(); i++)
-		{
-			const glm::vec3 vec1 = myMishModel.GetVertices(i, 0);
-			const glm::vec3 vec2 = myMishModel.GetVertices(i, 1);
-			const glm::vec3 vec3 = myMishModel.GetVertices(i, 2);
-
-			glm::vec4 nvec1(vec1.x, vec1.y, vec1.z, 1);
-
-			glm::vec4 nvec2(vec2.x, vec2.y, vec2.z, 1);
-
-			glm::vec4 nvec3(vec3.x, vec3.y, vec3.z, 1);
-
-
-			glm::mat4x4 mat44 = {
-				1, 0, 0, 0,
-				0, 1, 0, 0,
-				0, 0, 0, 0,
-				0, 0, 0, 0, };
-
-
-
-			glm::vec4 vec11 = mat44*nvec1;
-			glm::vec4 vec22 = mat44*nvec2;
-			glm::vec4 vec33 = mat44*nvec3;
-
-			glm::vec3 color = glm::vec3(0, 0, 0);
-
-			Line((vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, (vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, color);
-			Line((vec22.x + 1) * 100 + 200, (vec22.y + 1) * 100 + 200, (vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, color);
-			Line((vec33.x + 1) * 100 + 200, (vec33.y + 1) * 100 + 200, (vec11.x + 1) * 100 + 200, (vec11.y + 1) * 100 + 200, color);
-
+	//PrintLineBresenham(200,500,300,100,glm::vec3(0,0,0));
+	//Draw_Line_Bresenham(200, 500, 300, 100, glm::vec3(0, 0, 0));
+	if (scene.GetModelCount() <= 0) return;
+	std::shared_ptr<const MeshModel> activeModel = scene.GetAciveModel();
+	static int _r = 0;
+	Camera activeCamera = scene.GetActiveCamera();
+	Renderer::UpdateWorldTransform(scene);
+	glm::mat4 worldT = activeModel->GetWorldTransformation();
+	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	std::vector<glm::vec3> vertix;
+	for (int i = 0; i < activeModel->GetVerticesCount(); i++) {
+		vertix = activeModel->GetVertices(i);
+		float x[3], y[3];
+		glm::vec4 transformedV[3];
+		if (vertix.size() == 3) {
+			for (int k = 0; k < 3; k++){
+				transformedV[k] = /*glm::transpose*Utils::Translate(glm::vec3(300, 300, 300)))*/glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(20000, 20000, 20000)))*glm::transpose(worldT)*Utils::HomCoordinats(vertix.at(k));
+				//transformedV[k] = glm::transpose(worldT*Utils::Scale(glm::vec3(20000, 20000, 20000))*IvT*pT*Utils::Translate(glm::vec3(300, 300, 300)))*Utils::HomCoordinats(vertix.at(k));
+				x[k] = transformedV[k].x;
+				y[k] = transformedV[k].y;
+			}
+			if (_r++ <= 0) {
+				std::cout << "x " << x[0] << " y " << y[0] << std::endl;
+			}
+			drawTraingle(x[0], y[0], x[1], y[1], x[2], y[2], GetMeshColor());
 		}
+		vertix.clear();
 	}
 }
 
 
 
-void Renderer::Line(float x1, float y1, float x2, float y2, glm::vec3& Color)
+
+void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
 {
-	// Bresenham's line algorithm
 	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
 	if (steep)
 	{
@@ -155,17 +150,15 @@ void Renderer::Line(float x1, float y1, float x2, float y2, glm::vec3& Color)
 
 	const int maxX = (int)x2;
 
-	for (int x = (int)x1; x<maxX; x++)
+	for (int x = (int)x1; x < maxX; x++)
 	{
 		if (steep)
 		{
 			putPixel(y, x, Color);
-			//SetPixel(y, x, color);
 		}
 		else
 		{
 			putPixel(x, y, Color);
-			//SetPixel(x, y, color);
 		}
 
 		error -= dy;
@@ -176,41 +169,6 @@ void Renderer::Line(float x1, float y1, float x2, float y2, glm::vec3& Color)
 		}
 	}
 }
-
-void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color,int toFlip)
-{
-	/*the equation of the line wich passes through (x1,y1) and (x2,y2) is
-	y=slope*x + distance*//*,distance=y1-slope*x1*/
-	const float slope = (float)(y2 - y1) / (float)(x2 - x1);
-	int flag=(slope>=0)?1:-1/*,toFlip=0*/;
-	if (fabs(slope) > 1 || x1==x2) {
-		PrintLineBresenham(y1, x1, y2, x2, color,1); return;
-	}
-	int x=0, y=0, xMax=0, dx=0, dy=0, error=0;
-	if (x1 <= x2) {
-		x = x1; y = y1; xMax = x2; dx = x2 - x1; dy = y2 - y1; 
-	}
-	else {
-		x = x2; y = y2; xMax = x1; dx = x1 - x2; dy = y1 - y2; ;
-	}
-	error = -dx;
-	while (x < xMax) {
-		if (flag*error > 0) {
-			y += flag; error -= 2 * dx;
-		}
-		if (toFlip) {
-			putPixel(y, x, color);
-		}
-		else {
-			putPixel(x, y, color);
-		}
-		x++; error += 2 * dy;
-	}
-}
-
-
-
-
 
 
 
@@ -331,12 +289,35 @@ void Renderer::SwapBuffers()
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-/*void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color)  {
-	
-	Line(x1, y1, x2, y2, { 0,0,0 });
-	Line(x2, y2, x3, y3, { 0,0,0 });
-	Line(x3, y3, x1, y1, { 0,0,0 });
-	//Renderer::PrintLineBresenham(x1, y1,x2,y2,color);
-	//Renderer::PrintLineBresenham(x2, y2,x3,y3,color);
-	//Renderer::PrintLineBresenham(x3, y3,x1,y1,color);
-}*/
+void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color)  {
+	Renderer::PrintLineBresenham(x1, y1, x2, y2, color);
+	Renderer::PrintLineBresenham(x2, y2, x3, y3,color);
+	Renderer::PrintLineBresenham(x3, y3, x1, y1, color);
+}
+
+void Renderer::UpdateWorldTransform(const Scene& scene) const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	glm::mat4 modelTransform= activeModel->GetWorldTransformation();
+	static float thetaX= GetXAxisRotation();
+	static float thetaY = GetYAxisRotation();
+	static float thetaZ = GetZAxisRotation();
+	if (thetaX != GetXAxisRotation()) {
+		float dif=GetXAxisRotation()-thetaX;
+		activeModel->SetWorldTransformation(Utils::RotateOrigin(dif,X)*activeModel->GetWorldTransformation());
+		thetaX += dif;
+	}
+	else if (thetaY!=GetYAxisRotation()) {
+		float dif = GetYAxisRotation()-thetaY;
+		activeModel->SetWorldTransformation(Utils::RotateOrigin(dif, Y)*activeModel->GetWorldTransformation());
+		thetaY += dif;
+	}
+	else if(thetaZ!=GetZAxisRotation()){
+		float dif=GetZAxisRotation()- thetaZ;
+		activeModel->SetWorldTransformation(Utils::RotateOrigin(dif, Z)*activeModel->GetWorldTransformation());
+		thetaZ += dif;
+	}
+}
+
+void Renderer::UpdateViewTransform(const Scene& scene) const {
+	//TODO
+}

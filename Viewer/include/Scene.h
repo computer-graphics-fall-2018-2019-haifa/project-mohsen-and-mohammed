@@ -35,8 +35,7 @@ public:
 	void SetActiveModelIndex(int index);
 	const int GetActiveModelIndex() const;
 
-	const std::vector<Face>& GetModelFaces(int index) const;
-	const std::vector<glm::vec3>& GetVertices(int index) const;
+	std::shared_ptr< MeshModel> GetAciveModel()const;
 
-	const MeshModel& GetModel(int index) const;
+	const Camera& GetActiveCamera()const;
 };

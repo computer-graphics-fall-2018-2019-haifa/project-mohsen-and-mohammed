@@ -9,7 +9,7 @@
  * This class is consisted of static helper methods that can have many clients across the code.
  */
 enum AXIS { X = 'x', Y = 'y', Z = 'z' };
-
+enum PROJECTION { ORTH = 'O', PERS = 'P' };
 class Utils
 {
 public:
@@ -21,16 +21,16 @@ public:
 	static glm::vec4 HomCoordinats(const glm::vec3& vector);/*transform the given vector to its homogeneous form*/
 
 	static float dotProduct(const glm::vec3& vector1,const glm::vec3& vector2);
-	static glm::vec3& crossProduct(const glm::vec3& vector1, const glm::vec3& vector2);
+	static glm::vec3 crossProduct(const glm::vec3& vector1, const glm::vec3& vector2);
 
-	static glm::mat4& ReflectAxis(AXIS x);
+	static glm::mat4 ReflectAxis(AXIS x);
 	//static glm::mat4& ReflectByPlane(const glm::vec3& vector1,const glm::vec3& vector2);
-	static glm::mat4& Scale(const glm::vec3& scaleVec);
-	static glm::mat4& Translate(const glm::vec3& translateVec);
-	static glm::mat4& RotateOrigin(const float theta, const AXIS axis);
-	static glm::mat4& RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction);
-	static glm::mat4& ViewPortTramsform(const int left,const int right,const int buttom,const int top);
-	static glm::vec4& NormalizeVector(const glm::vec4&);
+	static glm::mat4 Scale(const glm::vec3& scaleVec);
+	static glm::mat4 Translate(const glm::vec3& translateVec);
+	static glm::mat4 RotateOrigin(const float theta, const AXIS axis);
+	static glm::mat4 RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction);
+	static glm::mat4 ViewPortTramsform(const float left,const float right,const float buttom,const float top);
+	static glm::vec3 NormalizeVector(const glm::vec3&);
 	
 	
 private:

@@ -1,4 +1,4 @@
-//#define _USE_MATH_DEFINES
+#define _USE_MATH_DEFINES
 
 #include <imgui/imgui.h>
 #include <stdio.h>
@@ -27,7 +27,7 @@ int main(int argc, char ** argv)
 {
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
-	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer - Muhammad && Mohsen");
+	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer - /*Muhammad &&*/ Mohsen");
 	if (!window)
 	{
 		return 1;
@@ -43,7 +43,10 @@ int main(int argc, char ** argv)
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-
+	Camera newC(glm::vec4(0, 0, 10, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, 1, 0, 1));
+	newC.SetOrthographicProjection(100,2,5,-5);
+	//newC.SetOrthographicProjection(1,2,2.54,-5);
+	scene.AddCamera(newC);
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 
@@ -156,5 +159,4 @@ void Cleanup(GLFWwindow* window)
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
-
 
