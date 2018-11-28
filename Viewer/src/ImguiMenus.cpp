@@ -160,7 +160,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	//draw normal per vertix
 	{
-		ImGui::Checkbox("Normal Per Face",&normalPerVertix);
+		ImGui::Checkbox("Normal Per Vertix",&normalPerVertix);
 	}
 	//draw normal per face
 	{

@@ -63,6 +63,13 @@ const std::vector<glm::vec3> MeshModel::GetVertices(const int faceIndex)const {
 	return myVertices;
 }
 
+const std::vector<glm::vec3> MeshModel::GetNormals(const int faceIndex) const {
+	std::vector<glm::vec3> myNormals;
+	for (int i = 0; i < 3; i++) {
+		myNormals.push_back(normals.at(faces.at(faceIndex).GetNormalIndex(i)-1));
+	}
+	return myNormals;
+}
 
 int MeshModel::GetVerticesCount()const {
 	return faces.size();

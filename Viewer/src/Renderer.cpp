@@ -103,6 +103,8 @@ void Renderer::Render(const Scene& scene)
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
 	std::vector<glm::vec3> vertix;
+	glm::mat4 finalM = glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(20000, 20000, 20000)))*glm::transpose(worldT);
+	//print model
 	for (int i = 0; i < activeModel->GetVerticesCount(); i++) {
 		vertix = activeModel->GetVertices(i);
 		float x[3], y[3];
@@ -111,8 +113,8 @@ void Renderer::Render(const Scene& scene)
 			for (int k = 0; k < 3; k++){
 				transformedV[k] = /*glm::transpose*Utils::Translate(glm::vec3(300, 300, 300)))*/glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(20000, 20000, 20000)))*glm::transpose(worldT)*Utils::HomCoordinats(vertix.at(k));
 				//transformedV[k] = glm::transpose(worldT*Utils::Scale(glm::vec3(20000, 20000, 20000))*IvT*pT*Utils::Translate(glm::vec3(300, 300, 300)))*Utils::HomCoordinats(vertix.at(k));
-				x[k] = transformedV[k].x;
-				y[k] = transformedV[k].y;
+				x[k] = transformedV[k].x+500;
+				y[k] = transformedV[k].y+500;
 			}
 			if (_r++ <= 0) {
 				std::cout << "x " << x[0] << " y " << y[0] << std::endl;
@@ -120,6 +122,11 @@ void Renderer::Render(const Scene& scene)
 			drawTraingle(x[0], y[0], x[1], y[1], x[2], y[2], GetMeshColor());
 		}
 		vertix.clear();
+	}
+	//print normal per face
+	if (DrawFaceNormal()) {
+		std::cout << "ASDASD" << std::endl;
+		Renderer::PrintNormalPerFace(activeModel, finalM);
 	}
 }
 
@@ -320,4 +327,24 @@ void Renderer::UpdateWorldTransform(const Scene& scene) const {
 
 void Renderer::UpdateViewTransform(const Scene& scene) const {
 	//TODO
+}
+
+void Renderer::PrintActiveModelFaceNormals(const Scene& scene)const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+}
+
+void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
+	if (model->GetVerticesCount() <= 0) return;
+	for (int i = 0; i < model->GetVerticesCount();i++) {
+		std::vector<glm::vec3> faceVertices = model->GetVertices(i);
+		std::vector<glm::vec3> faceNormals = model->GetNormals(i);
+		glm::vec3 triangleCenter = glm::vec3(0.33f, 0.33f, 0.33f)*(faceVertices.at(0) + faceVertices.at(1) + faceVertices.at(2));
+		glm::vec3 normalDirection = glm::vec3(0.33f, 0.33f, 0.33f)*(faceNormals.at(0)+faceNormals.at(1)+faceNormals.at(2));
+		//we multipy  the normal with the same matrix as the model
+		glm::vec4 temp1 = (mat)*Utils::HomCoordinats(triangleCenter);
+		glm::vec4 temp2 = (mat)*Utils::HomCoordinats(normalDirection);
+		triangleCenter.x = temp1.x; triangleCenter.y = temp1.y;
+		normalDirection.x = temp2.x;  normalDirection.y = temp2.y;
+		Renderer::PrintLineBresenham(triangleCenter.x+500, triangleCenter.y+500, normalDirection.x+500, normalDirection.y+500, GetMeshColor());
+	}
 }

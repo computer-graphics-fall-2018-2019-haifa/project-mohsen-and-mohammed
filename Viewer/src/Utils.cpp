@@ -171,7 +171,7 @@ glm::mat4 Utils::RotateOrigin(const float theta,const AXIS around) {
 		return glm::mat4(myVec(cos(theta), 0, -sin(theta), 0), myVec(0, 1, 0, 0), myVec(sin(theta), 0, cos(theta), 0), myVec(0, 0, 0, 0));
 	}
 	else {
-		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, cos(theta), -sin(theta), 0), myVec(0, sin(theta), cos(theta), 0), myVec(0, 0, 0, 1));
+		return glm::mat4(myVec(cos(theta), -sin(theta), 0, 0), myVec(sin(theta), cos(theta), 0, 0), myVec(0, 0, 1, 0), myVec(0, 0, 0, 1));
 	}
 }
 

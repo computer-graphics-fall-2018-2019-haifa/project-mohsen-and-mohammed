@@ -36,6 +36,8 @@ public:
 
 	const std::vector<glm::vec3> GetVertices(const int faceIndex)const;
 
+	const std::vector<glm::vec3> GetNormals(const int faceIndex) const;
+
 	int GetVerticesCount()const;
 
 	void printV()const;
