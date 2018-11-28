@@ -46,6 +46,7 @@ public:
 	//TODO
 	/*glm::mat4& ModelFrameTransform() const;*/
 	void UpdateViewTransform(const Scene& scene) const;
-	void PrintActiveModelFaceNormals(const Scene& scene)const;
+	//void PrintActiveModelFaceNormals(const Scene& scene)const;
 	void PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 matrix) ;
+	void PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4 matrix);
 };

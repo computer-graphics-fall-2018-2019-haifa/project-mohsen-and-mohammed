@@ -128,6 +128,10 @@ void Renderer::Render(const Scene& scene)
 		std::cout << "ASDASD" << std::endl;
 		Renderer::PrintNormalPerFace(activeModel, finalM);
 	}
+	//print bounding box
+	if (DrawBoundingBox()) {
+		Renderer::PrintBoundingBox(activeModel, finalM);
+	}
 }
 
 
@@ -329,9 +333,7 @@ void Renderer::UpdateViewTransform(const Scene& scene) const {
 	//TODO
 }
 
-void Renderer::PrintActiveModelFaceNormals(const Scene& scene)const {
-	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
-}
+
 
 void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
 	if (model->GetVerticesCount() <= 0) return;
@@ -347,4 +349,56 @@ void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::m
 		normalDirection.x = temp2.x;  normalDirection.y = temp2.y;
 		Renderer::PrintLineBresenham(triangleCenter.x+500, triangleCenter.y+500, normalDirection.x+500, normalDirection.y+500, GetMeshColor());
 	}
+}
+
+void Renderer::PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4 matrix) {
+	glm::vec3 up1, up2, up3, up4, down1, down2, down3, down4;
+	const float minX=model->getMinX()
+			  , maxX=model->getMaxX()
+			  , minY=model->getMinY()
+		      , maxY=model->getMaxY()
+		      , minZ=model->getMinZ()
+		      , maxZ=model->getMaxZ();
+	up1 = glm::vec3(minX, maxY, maxZ);
+	up2 = glm::vec3(maxX,maxY,maxZ);
+	up3 = glm::vec3(maxX, minY, maxZ);
+	up4 = glm::vec3(minX, minY, maxZ);
+	down1 = glm::vec3(minX, maxY, minZ);
+	down2 = glm::vec3(maxX, maxY, minZ);
+	down3 = glm::vec3(maxX, minY, minZ);
+	down4 = glm::vec3(minX, minY, minZ);
+	up1.x = (matrix * Utils::HomCoordinats(up1)).x;
+	up2.x = (matrix * Utils::HomCoordinats(up2)).x;
+	up3.x = (matrix * Utils::HomCoordinats(up3)).x;
+	up4.x = (matrix * Utils::HomCoordinats(up4)).x;
+
+	up1.y = (matrix * Utils::HomCoordinats(up1)).y;
+	up2.y = (matrix * Utils::HomCoordinats(up2)).y;
+	up3.y = (matrix * Utils::HomCoordinats(up3)).y;
+	up4.y = (matrix * Utils::HomCoordinats(up4)).y;
+
+	down1.x = (matrix * Utils::HomCoordinats(down1)).x;
+	down2.x = (matrix * Utils::HomCoordinats(down2)).x;
+	down3.x = (matrix * Utils::HomCoordinats(down3)).x;
+	down4.x = (matrix * Utils::HomCoordinats(down4)).x;
+
+	down1.y = (matrix * Utils::HomCoordinats(down1)).y;
+	down2.y = (matrix * Utils::HomCoordinats(down2)).y;
+	down3.y = (matrix * Utils::HomCoordinats(down3)).y;
+	down4.y = (matrix * Utils::HomCoordinats(down4)).y;
+	
+	
+	Renderer::PrintLineBresenham(up1.x+500,up1.y+500,up2.x+500,up2.y+500,GetMeshColor());
+	Renderer::PrintLineBresenham(up1.x + 500, up1.y + 500, up4.x + 500, up4.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, up2.x + 500, up2.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, up4.x + 500, up4.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(down1.x+500,down1.y+500,down2.x+500,down2.y+500,GetMeshColor());
+	Renderer::PrintLineBresenham(down1.x + 500, down1.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(down3.x + 500, down3.y + 500, down2.x + 500, down2.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(down3.x + 500, down3.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up1.x+500,up1.y+500,down1.x+500,down1.y+500,GetMeshColor());
+	Renderer::PrintLineBresenham(up2.x + 500, up2.y + 500, down2.x + 500, down2.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, down3.x + 500, down3.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up4.x + 500, up4.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
+
 }
