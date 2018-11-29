@@ -8,6 +8,7 @@ const glm::vec3& GetMeshColor();
 float GetXAxisRotation();
 float GetYAxisRotation();
 float GetZAxisRotation();
+float GetScale();
 bool DrawFaceNormal();
 bool DrawVertixNormal();
 bool DrawBoundingBox();

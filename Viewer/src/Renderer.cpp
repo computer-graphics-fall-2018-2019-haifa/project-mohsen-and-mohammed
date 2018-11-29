@@ -102,8 +102,9 @@ void Renderer::Render(const Scene& scene)
 	glm::mat4 worldT = activeModel->GetWorldTransformation();
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	glm::mat4 VpT = Renderer::GetViewPortTramsform();
 	std::vector<glm::vec3> vertix;
-	glm::mat4 finalM = glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(20000, 20000, 20000)))*glm::transpose(worldT);
+	glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT);
 	//print model
 	for (int i = 0; i < activeModel->GetVerticesCount(); i++) {
 		vertix = activeModel->GetVertices(i);
@@ -111,7 +112,7 @@ void Renderer::Render(const Scene& scene)
 		glm::vec4 transformedV[3];
 		if (vertix.size() == 3) {
 			for (int k = 0; k < 3; k++){
-				transformedV[k] = /*glm::transpose*Utils::Translate(glm::vec3(300, 300, 300)))*/glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(20000, 20000, 20000)))*glm::transpose(worldT)*Utils::HomCoordinats(vertix.at(k));
+				transformedV[k] = /*glm::transpose*Utils::Translate(glm::vec3(300, 300, 300)))*/glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*Utils::HomCoordinats(vertix.at(k));
 				//transformedV[k] = glm::transpose(worldT*Utils::Scale(glm::vec3(20000, 20000, 20000))*IvT*pT*Utils::Translate(glm::vec3(300, 300, 300)))*Utils::HomCoordinats(vertix.at(k));
 				x[k] = transformedV[k].x+500;
 				y[k] = transformedV[k].y+500;
@@ -125,7 +126,6 @@ void Renderer::Render(const Scene& scene)
 	}
 	//print normal per face
 	if (DrawFaceNormal()) {
-		std::cout << "ASDASD" << std::endl;
 		Renderer::PrintNormalPerFace(activeModel, finalM);
 	}
 	//print bounding box
@@ -327,6 +327,13 @@ void Renderer::UpdateWorldTransform(const Scene& scene) const {
 		activeModel->SetWorldTransformation(Utils::RotateOrigin(dif, Z)*activeModel->GetWorldTransformation());
 		thetaZ += dif;
 	}
+	static float scale = GetScale();
+	if (scale!=GetScale()) {
+		float dif = GetScale() - scale;
+		activeModel->SetWorldTransformation(Utils::Scale(glm::vec3(dif, dif, dif))*activeModel->GetWorldTransformation());
+		scale = GetScale();
+	}
+	
 }
 
 void Renderer::UpdateViewTransform(const Scene& scene) const {
@@ -389,16 +396,22 @@ void Renderer::PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4
 	
 	
 	Renderer::PrintLineBresenham(up1.x+500,up1.y+500,up2.x+500,up2.y+500,GetMeshColor());
-	Renderer::PrintLineBresenham(up1.x + 500, up1.y + 500, up4.x + 500, up4.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, up2.x + 500, up2.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, up4.x + 500, up4.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(down1.x+500,down1.y+500,down2.x+500,down2.y+500,GetMeshColor());
-	Renderer::PrintLineBresenham(down1.x + 500, down1.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(down3.x + 500, down3.y + 500, down2.x + 500, down2.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(down3.x + 500, down3.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(up1.x+500,up1.y+500,down1.x+500,down1.y+500,GetMeshColor());
-	Renderer::PrintLineBresenham(up2.x + 500, up2.y + 500, down2.x + 500, down2.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(up3.x + 500, up3.y + 500, down3.x + 500, down3.y + 500, GetMeshColor());
-	Renderer::PrintLineBresenham(up4.x + 500, up4.y + 500, down4.x + 500, down4.y + 500, GetMeshColor());
+	Renderer::PrintLineBresenham(up1.x , up1.y , up4.x , up4.y , GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x , up3.y , up2.x , up2.y , GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x , up3.y , up4.x , up4.y , GetMeshColor());
+	Renderer::PrintLineBresenham(down1.x,down1.y,down2.x,down2.y,GetMeshColor());
+	Renderer::PrintLineBresenham(down1.x , down1.y, down4.x , down4.y , GetMeshColor());
+	Renderer::PrintLineBresenham(down3.x , down3.y , down2.x , down2.y , GetMeshColor());
+	Renderer::PrintLineBresenham(down3.x , down3.y , down4.x, down4.y , GetMeshColor());
+	Renderer::PrintLineBresenham(up1.x,up1.y,down1.x,down1.y,GetMeshColor());
+	Renderer::PrintLineBresenham(up2.x , up2.y , down2.x , down2.y , GetMeshColor());
+	Renderer::PrintLineBresenham(up3.x , up3.y , down3.x , down3.y , GetMeshColor());
+	Renderer::PrintLineBresenham(up4.x , up4.y, down4.x, down4.y , GetMeshColor());
 
+}
+
+glm::mat4 Renderer::GetViewPortTramsform()const {
+	glm::mat4 scaleM = Utils::Scale(glm::vec3(viewportWidth/2, viewportHeight/2,1));
+	glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
+	return translateM * scaleM;
 }

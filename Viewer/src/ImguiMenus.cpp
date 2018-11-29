@@ -46,7 +46,9 @@ float GetYAxisRotation() {
 float GetZAxisRotation() {
 	return rotateZ;
 }
-
+float GetScale() {
+	return scale;
+}
 bool DrawFaceNormal() {
 	return normalPerFace;
 }
