@@ -14,7 +14,7 @@
 #include <random>
 
 bool showDemoWindow = false;
-bool showAnotherWindow = false;
+bool showAnotherWindow = true;
 
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 glm::vec3 meshColor = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -26,6 +26,9 @@ bool normalPerVertix = false;
 bool boundingBox = false;
 float scale = 1;
 float zoom = 1;
+static float eye[3] = {0,0,10};
+static float at[3] = {0,0,0};
+static float y[3] = {0,1,0};
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
@@ -35,6 +38,15 @@ const glm::vec3& GetMeshColor() {
 	return meshColor;
 }
 
+glm::vec3 GetEye() {
+	return glm::vec3(eye[0], eye[1], eye[2]);
+}
+glm::vec3 GetAt() {
+	return glm::vec3(at[0],at[1],at[2]);
+}
+glm::vec3 GetY() {
+	return glm::vec3(y[0],y[1],y[2]);
+}
 float GetXAxisRotation() {
 	return rotateX;
 }
@@ -179,6 +191,14 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	//camera zoom
 	{
 		ImGui::InputFloat("Zoom", &zoom);
+	}
+	//change look at
+	{
+		ImGui::Text("Look at");
+		
+		ImGui::InputFloat3("eye", eye);
+		ImGui::InputFloat3("at", at);
+		ImGui::InputFloat3("y axis", y);
 	}
 }
 

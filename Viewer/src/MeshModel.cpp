@@ -13,6 +13,16 @@ MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3
 	this->faces = faces;
 	this->vertices = vertices;
 	this->normals = normals;
+	vertixNormals.resize(vertices.size(), glm::vec3(0, 0, 0));
+	for (int i = 0; i < faces.size(); i++) {
+		const std::vector<glm::vec3> faceNormals = MeshModel::GetNormals(i);
+		for (int j = 0; j < 3; j++) {
+			vertixNormals.at(faces.at(i).GetVertexIndex(j)-1) += faceNormals.at(j);
+		}
+	}
+	for (int i = 0; i < vertixNormals.size(); i++) {
+		vertixNormals.at(i) = Utils::Normalize(vertixNormals.at(i)) / 5.0f;
+	}
 }
 
 MeshModel::~MeshModel()
@@ -57,7 +67,6 @@ void MeshModel::calculateNormalPerFace()  {
 const std::vector<glm::vec3> MeshModel::GetVertices(const int faceIndex)const {
 	std::vector<glm::vec3> myVertices;
 	for (int i = 0; i < 3; i++) {
-		//std::cout << "Vertex Index:" << vertices.at(faces.at(faceIndex).GetVertexIndex(i) - 1).x << std::endl;
 		myVertices.push_back(vertices.at(faces.at(faceIndex).GetVertexIndex(i)-1));
 	}
 	return myVertices;
@@ -71,10 +80,38 @@ const std::vector<glm::vec3> MeshModel::GetNormals(const int faceIndex) const {
 	return myNormals;
 }
 
-int MeshModel::GetVerticesCount()const {
-	return faces.size();
+
+float MeshModel::GetFaceArea(const int faceIndex) const {
+	const std::vector < glm::vec3 > points= MeshModel::GetVertices(faceIndex);
+	const glm::vec3 vector1 = points.at(0) - points.at(1);
+	const glm::vec3 vector2 = points.at(0) - points.at(2);
+	const float t = Utils::dotProduct(Utils::Normalize(vector1), Utils::Normalize(vector2));
+	if (t >= -1 && t <= 1) {
+		const float theta = acosf(t);
+		return 0.5f*Utils::Norm(vector1)*Utils::Norm(vector2)*sinf(theta);
+	}
+	else {
+		exit(1);
+	}
+	
 }
 
+glm::vec3 MeshModel::GetFaceCenter(const int faceIndex) const {
+	glm::vec3 center(0, 0, 0);
+	const std::vector<glm::vec3> vertices = MeshModel::GetVertices(faceIndex);
+	for (int i = 0; i < 3; i++) {
+		center += vertices.at(i);
+	}
+	return center * 0.33f;
+}
+
+int MeshModel::GetVerticesCount()const {
+	return vertices.size();
+}
+
+int MeshModel::GetFaceCount()const {
+	return faces.size();
+}
 
 void MeshModel::printV() const{
 	static int h = 0;
@@ -89,7 +126,6 @@ float MeshModel::getMinXAfterTranformX(const glm::mat4& tranfrom)const {
 	float min = (tranfrom* Utils::HomCoordinats(vertices.at(0))).x;
 	for (int i = 0; i < vertices.size(); i++) {
 		float temp = (tranfrom* Utils::HomCoordinats(vertices.at(i))).x;
-		//std::cout << "Dick: " << temp << std::endl;
 		if (min >= temp)
 			min = temp;
 	}
@@ -135,4 +171,32 @@ float MeshModel::getMinZ()const {
 	glm::vec4 row3(1, 0, 0, 0);
 	glm::vec4 row4(0, 0, 0, 1);
 	return getMinXAfterTranformX(glm::mat4(row1, row2, row3, row4));
+}
+
+bool MeshModel::DoesFaceContainVertix(const int faceIndex, const int vertixIndex) const {
+	return faces.at(faceIndex).ContainVertix(vertixIndex);
+}
+
+glm::vec3 MeshModel::GetFaceNormalDirection(const int faceIndex) const {
+	if (faceIndex < 0 || faceIndex >= faces.size()) {
+		std::cout << std::endl << "ASDASDASDASDASDASDafsdgasdfg" << std::endl;
+		exit(1);
+	}
+	std::vector<glm::vec3> vertices = MeshModel::GetVertices(faceIndex);
+	glm::vec3 vector1 = vertices.at(0) - vertices.at(1);
+	glm::vec3 vector2 = vertices.at(0) - vertices.at(2);
+	if (vector1.x <= vector2.x) {
+		return Utils::Normalize(Utils::crossProduct(vector1, vector2)) / 5.0f;
+	}
+	else {
+		return Utils::Normalize(Utils::crossProduct(vector2, vector1)) / 5.0f;
+	}
+}
+
+glm::vec3 MeshModel::getVertix(const int index)const {
+	return vertices.at(index);
+}
+
+glm::vec3 MeshModel::getVertixNormal(const int index)const {
+	return vertixNormals.at(index);
 }

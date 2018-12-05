@@ -23,4 +23,7 @@ public:
 	
 	void Face::SetNormal(const glm::vec3& normal);
 	const glm::vec3 Face::GetNormal() const;
+
+	bool ContainVertix(const int vertex)const;
+
 };

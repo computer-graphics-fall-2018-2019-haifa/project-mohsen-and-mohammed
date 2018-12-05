@@ -85,7 +85,7 @@ glm::mat4 Camera::calculateOrthProjectionMatrix(const float height, const float 
 	myVec row2 = myVec(0, (2.0f) / (height), 0, 0);
 	myVec row3 = myVec(0, 0, (-2.0f) / (far - near), 0);
 	myVec row4 = myVec(0, 0, 0, 1);*/
-	return Utils::Scale(glm::vec3((1.0f) / (aspectRatio*height), (1.0f) / (height), (1.0f) / (fabs(far - near))));
+	return Utils::Scale(glm::vec3((2.0f) / (aspectRatio*height), (2.0f) / (height), (2.0f) / (fabs(far - near))));
 }
 
 glm::mat4 Camera::calculatePersProjetionMatrix(const float fovy, const float aspect, const float near, const float far)const {
@@ -94,7 +94,6 @@ glm::mat4 Camera::calculatePersProjetionMatrix(const float fovy, const float asp
 
 bool Camera::AUX_CanBeSeen(const glm::vec4& point)const {
 	glm::vec4 temp = point;
-	// glm::vec4 temp = this->projectionTransformation*point;
 	return ((temp.x >= -1 && temp.x <= 1) && (temp.y >= -1 && temp.y <= 1) && (temp.z >= -1 && temp.z <= 1));
 }
 const glm::mat4& Camera::GetInverseViewTranform()const {

@@ -15,6 +15,7 @@ private:
 	std::vector<Face> faces;
 	std::vector<glm::vec3> vertices;
 	std::vector<glm::vec3> normals;
+	std::vector<glm::vec3> vertixNormals;
 	glm::mat4x4 worldTransform;
 	glm::vec4 color;
 	std::string modelName;
@@ -33,13 +34,18 @@ public:
 	const std::string& GetModelName();
 
 	void calculateNormalPerFace();
-
+	
 	const std::vector<glm::vec3> GetVertices(const int faceIndex)const;
 
 	const std::vector<glm::vec3> GetNormals(const int faceIndex) const;
 
-	int GetVerticesCount()const;
+	float GetFaceArea(const int faceIndex) const;
 
+	glm::vec3 GetFaceCenter(const int faceIndex) const;
+	glm::vec3 GetFaceNormalDirection(const int faceIndex) const;
+	int GetVerticesCount()const;
+	int GetFaceCount()const;
+	bool DoesFaceContainVertix(const int faceIndex, const int vertixIndex) const;
 	void printV()const;
 
 	float getMaxX()const;
@@ -48,5 +54,7 @@ public:
 	float getMinX()const;
 	float getMinY()const;
 	float getMinZ()const;
-	// Add more methods/functionality as needed...
+
+	glm::vec3 getVertix(const int vetixIndex)const;
+	glm::vec3 getVertixNormal(const int vertixIndex)const;
 };

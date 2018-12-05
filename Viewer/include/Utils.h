@@ -31,7 +31,8 @@ public:
 	static glm::mat4 RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction);
 	static glm::mat4 ViewPortTramsform(const float left,const float right,const float buttom,const float top);
 	static glm::vec3 NormalizeVector(const glm::vec3&);
-	
+	static glm::vec3 Normalize(const glm::vec3);
+	static float Norm(const glm::vec3);
 	
 private:
 	static std::string GetFileName(const std::string& filePath);

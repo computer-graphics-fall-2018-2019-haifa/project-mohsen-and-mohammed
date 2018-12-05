@@ -138,7 +138,7 @@ glm::mat4 Utils::ReflectAxis(AXIS axis) {
 		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, -1, 0, 0), myVec(0, 0, 1, 0), myVec(0, 0, 0, 1));
 	}
 	else {
-		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, 1, 0, 0), myVec(0, 0, -1, 0), myVec(0, 0, 0, 1));
+		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, 1, 0, 0), myVec(0, 0,-1, 0), myVec(0, 0, 0, 1));
 	}
 }
 /*
@@ -168,7 +168,7 @@ glm::mat4 Utils::RotateOrigin(const float theta,const AXIS around) {
 		return glm::mat4(myVec(1, 0, 0, 0), myVec(0, cos(theta), -sin(theta), 0), myVec(0, sin(theta), cos(theta), 0), myVec(0, 0, 0, 1));
 	}
 	else if (around == Y) {
-		return glm::mat4(myVec(cos(theta), 0, -sin(theta), 0), myVec(0, 1, 0, 0), myVec(sin(theta), 0, cos(theta), 0), myVec(0, 0, 0, 0));
+		return glm::mat4(myVec(cos(theta), 0, -sin(theta), 0), myVec(0, 1, 0, 0), myVec(sin(theta), 0, cos(theta), 0), myVec(0, 0, 0, 1));
 	}
 	else {
 		return glm::mat4(myVec(cos(theta), -sin(theta), 0, 0), myVec(sin(theta), cos(theta), 0, 0), myVec(0, 0, 1, 0), myVec(0, 0, 0, 1));
@@ -202,4 +202,13 @@ glm::mat4 Utils::ViewPortTramsform(const float left, const float right, const fl
 	glm::vec4 row3(0,0,0.50f,0.50f);
 	glm::vec4 row4(0,0,0,1);
 	return glm::mat4(row1, row2, row3, row4);
+}
+
+glm::vec3 Utils::Normalize(const glm::vec3 vector) {
+	float norm =1.0f/ sqrtf(vector.x*vector.x + vector.y*vector.y + vector.z*vector.z);
+	return Utils::HomCoordinats(vector)*norm;
+}
+
+float Utils::Norm(const glm::vec3 vector) {
+	return sqrtf(vector.x*vector.x + vector.y * vector.y + vector.z * vector.z);
 }

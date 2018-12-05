@@ -1,5 +1,5 @@
 #include "Face.h"
-
+#include <iostream>
 Face::Face(std::istream& issLine)
 {
 	vertexIndices =  { 0, 0, 0 };
@@ -65,3 +65,9 @@ void Face::SetNormal(const glm::vec3& normal) {
 const glm::vec3 Face::GetNormal() const{
 	return this->faceNormal;
 }
+
+bool Face::ContainVertix(const int vertix) const {
+	//std::cout << vertexIndices.at(0) << std::endl;
+	return (vertexIndices.at(0) == vertix || vertexIndices.at(1) == vertix || vertexIndices.at(2) == vertix);
+}
+
