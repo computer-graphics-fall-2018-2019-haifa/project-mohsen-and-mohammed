@@ -385,7 +385,7 @@ void Renderer::UpdateModelScale(const Scene& scene)const {
 	float difX= GetScale().x/activeModel->getModelScale().x;
 	float difY= GetScale().y/ activeModel->getModelScale().y;
 	float difZ= GetScale().z/ activeModel->getModelScale().z;
-	activeModel->SetModelTransformation(Utils::Scale(glm::vec3(difX, difY, difZ))*activeModel->GetModelTransformation());
+	activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::Scale(glm::vec3(difX, difY, difZ)));
 	activeModel->setModelScale(GetScale());
 }
 void Renderer::PrintFrame(const float length, const glm::mat4 matrix) {
@@ -412,7 +412,7 @@ void Renderer::PrintModelFrame(const Scene& scene) {
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
 	glm::mat4 VpT = Renderer::GetViewPortTramsform();
-	Renderer::PrintFrame(WORLDFRAMEAXIS, glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(wT));
+	Renderer::PrintFrame(MODELFRAMAXIS, glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(wT));
 }
 void Renderer::UpdateModelTranslate(const Scene& scene)const {
 	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
