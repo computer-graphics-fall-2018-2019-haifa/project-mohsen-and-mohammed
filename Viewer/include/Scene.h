@@ -38,4 +38,6 @@ public:
 	std::shared_ptr< MeshModel> GetAciveModel()const;
 
 	const Camera& GetActiveCamera()const;
+
+
 };

@@ -8,7 +8,10 @@
 
 MeshModel::MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName) :
 	modelName(modelName),
-	worldTransform(glm::mat4x4(1))
+	worldTransform(glm::mat4x4(1)),modelTransform(glm::mat4(1))
+	, modelThetaX(0), modelThetaY(0), modelThetaZ(0), worldThetaX(0), worldThetaY(0), worldThetaZ(0)
+	,modelScale(glm::vec3(1,1,1)), 
+	modelTranslate(glm::vec3(0,0,0)),worldTranslate(glm::vec3(0,0,0))
 {
 	this->faces = faces;
 	this->vertices = vertices;
@@ -106,11 +109,11 @@ glm::vec3 MeshModel::GetFaceCenter(const int faceIndex) const {
 }
 
 int MeshModel::GetVerticesCount()const {
-	return vertices.size();
+	return (int)vertices.size();
 }
 
 int MeshModel::GetFaceCount()const {
-	return faces.size();
+	return (int)faces.size();
 }
 
 void MeshModel::printV() const{
@@ -199,4 +202,98 @@ glm::vec3 MeshModel::getVertix(const int index)const {
 
 glm::vec3 MeshModel::getVertixNormal(const int index)const {
 	return vertixNormals.at(index);
+}
+
+float MeshModel::getModelThetaX()const {
+	return modelThetaX;
+}
+float MeshModel::getModelThetyaY()const {
+	return modelThetaY;
+}
+float MeshModel::getModelThetaZ()const {
+	return modelThetaZ;
+}
+glm::vec3 MeshModel::getModelScale()const {
+	return modelScale;
+}
+glm::vec3 MeshModel::getModelTranslate()const {
+	return modelTranslate;
+}
+void MeshModel::setModelThetaX(const float theta) {
+	this->modelThetaX = theta;
+}
+void MeshModel::setModelThetaY(const float theta) {
+	this->modelThetaY = theta;
+}
+void MeshModel::setModelThetaZ(const float theta) {
+	this->modelThetaZ = theta;
+}
+void MeshModel::setModelScale(const glm::vec3& newScale) {
+	this->modelScale = newScale;
+}
+void MeshModel::setModelTranslate(const glm::vec3& newTranslate) {
+	this->modelTranslate = newTranslate;
+}
+glm::vec3 MeshModel::getWorldTranslate()const {
+	return worldTranslate;
+}
+void MeshModel::setWorldTranslate(const glm::vec3& newTranslate) {
+	worldTranslate = newTranslate;
+}
+glm::vec3 MeshModel::CalculateInModelFrame(const glm::vec3& vector)const {
+	//the standart basis of R3
+	const glm::vec3 v1(1, 0, 0), v2(0, 1, 0), v3(0, 0, 1);
+	//the origin of model's frame
+	const glm::vec4 O = glm::transpose(worldTransform) * glm::vec4(0, 0, 0, 1);
+//	std::cout << O.x << " " << O.y << " " << O.z << " " << O.w << "  O" << std::endl;
+	//the basis of model frame
+	glm::vec3 u1 = CalculateInModelFrameDirection(v1);glm::vec3 u2 = CalculateInModelFrameDirection(v2);
+	glm::vec3 u3 = CalculateInModelFrameDirection(v3);
+	//glm::vec4 u1 = glm::transpose(worldTransform )* v1-O, u2 = glm::transpose(worldTransform) * v2-O, u3 = glm::transpose(worldTransform) * v3-O;
+	u1 = Utils::Normalize(u1); u2 = Utils::Normalize(u2); u3 = Utils::Normalize(u3);
+	/*std::cout << " " << u1.x << " " << u1.y << " " << u1.z << " u1" << u1.w<<std::endl;
+	std::cout << " " << u2.x << " " << u2.y << " " << u2.z << " u2" << std::endl;
+	std::cout << " " << u3.x << " " << u3.y << " " << u3.z << " u3" << std::endl;*/
+	const glm::mat4x4 transformationMatrixTranspose(u1.x, u1.y, u1.z,0.0f,
+										 u2.x, u2.y, u2.z,0.0f,
+										 u3.x, u3.y, u3.z,0.0f,
+											0.0f,0.0f,0.0f,1.0f);
+	return Utils::SwitchFromHom(glm::transpose(Utils::Translate(Utils::SwitchFromHom(O)))*transformationMatrixTranspose*Utils::HomCoordinats(vector));
+}
+glm::vec3 MeshModel::CalculateInModelFrameDirection(const glm::vec3& vector)const {
+	//the standart basis of R3
+	const glm::vec4 v1(1, 0, 0, 1), v2(0, 1, 0, 1), v3(0, 0, 1, 1);
+	//the basis of model frame
+	 glm::vec4 u1 = glm::transpose(worldTransform) * v1, u2 = glm::transpose(worldTransform) * v2, u3 = glm::transpose(worldTransform) * v3;
+	 u1 = Utils::Normalize(u1); u2 = Utils::Normalize(u2); u3 = Utils::Normalize(u3);
+	 //the origin of model's frame
+	const glm::vec4 O = glm::transpose(worldTransform) * glm::vec4(0, 0, 0, 1);
+	const glm::mat3 transformationMatrixTranspose(u1.x, u1.y, u1.z,
+		u2.x, u2.y, u2.z, 
+		u3.x, u3.y, u3.z);
+	return transformationMatrixTranspose * vector;
+}
+float MeshModel::getWorldThetaX()const {
+	return worldThetaX;
+}
+float MeshModel::getWorldThetaY()const {
+	return worldThetaY;
+}
+float MeshModel::getWorldThetaZ()const {
+	return worldThetaZ;
+}
+void MeshModel::setWorldThetaX(const float theta) {
+	worldThetaX = theta;
+}
+void MeshModel::setWorldThetaY(const float theta) {
+	worldThetaY = theta;
+}
+void MeshModel::setWorldThetaZ(const float theta) {
+	worldThetaZ = theta;
+}
+void MeshModel::SetModelTransformation(const glm::mat4x4& mat) {
+	this->modelTransform = mat;
+}
+const glm::mat4x4& MeshModel::GetModelTransformation()const {
+	return this->modelTransform;
 }

@@ -22,13 +22,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::vec3 y = Utils::NormalizeVector(Utils::crossProduct(z, x));
 	glm::vec4 t(0.0f, 0.0f, 0.0f, 1.0f);
 	this->InverseViewTransformation = glm::mat4(x.x,x.y,x.z,0, y.x,y.y,y.z,0, z.x,z.y,z.z,0, 0,0,0,1)*Utils::Translate(glm::vec3(-1,-1,-1)*eye);
-	//glm::mat4 temp(x, y, z, t);
 	glm::mat4 temp1 = this->InverseViewTransformation;
-	/*std::cout << "Inverse: " << std::endl;
-	std::cout << temp1[0][0] << " " << temp1[0][1] << " " << temp1[0][2] <<" " << temp1[0][3]<<std::endl;
-	std::cout << temp1[1][0] << " " << temp1[1][1] << " " << temp1[1][2] <<" " << temp1[1][3] << std::endl;
-	std::cout << temp1[2][0] << " " << temp1[2][1] << " " << temp1[2][2] <<" " << temp1[2][3] << std::endl;
-	std::cout << temp1[3][0] << " " << temp1[3][1] << " " << temp1[3][2] <<" " << temp1[3][3] << std::endl;*/
 	this->viewTransformation = glm::inverse(this->InverseViewTransformation);
 }
 

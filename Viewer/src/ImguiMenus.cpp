@@ -18,17 +18,23 @@ bool showAnotherWindow = true;
 
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
 glm::vec3 meshColor = glm::vec3(0.0f, 0.0f, 0.0f);
-float rotateX = 0.0f;
-float rotateY = 0.0f;
-float rotateZ = 0.0f;
-bool normalPerFace = false;
-bool normalPerVertix = false;
-bool boundingBox = false;
-float scale = 1;
+static bool temp = false;
+static float worldRotateX = 0.0f;
+static float worldRotateY = 0.0f;
+static float worldRotateZ = 0.0f;
+static float rotateX = 0.0f;
+static float rotateY = 0.0f;
+static float rotateZ = 0.0f;
+static bool normalPerFace = false;
+static bool normalPerVertix = false;
+static bool boundingBox = false;
 float zoom = 1;
 static float eye[3] = {0,0,10};
 static float at[3] = {0,0,0};
 static float y[3] = {0,1,0};
+static float translate[3] = { 0,0,0 };
+static float scale[3] = { 1,1,1 };
+static float WorldTranslate[3] = { 0,0,0 };
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
@@ -37,7 +43,9 @@ const glm::vec4& GetClearColor()
 const glm::vec3& GetMeshColor() {
 	return meshColor;
 }
-
+glm::vec3 GetTranslateVector() {
+	return glm::vec3(translate[0], translate[1], translate[2]);
+}
 glm::vec3 GetEye() {
 	return glm::vec3(eye[0], eye[1], eye[2]);
 }
@@ -58,8 +66,11 @@ float GetYAxisRotation() {
 float GetZAxisRotation() {
 	return rotateZ;
 }
-float GetScale() {
-	return scale;
+glm::vec3 GetScale() {
+	return glm::vec3(scale[0],scale[1],scale[2]);
+}
+glm::vec3 GetWorldTranslate() {
+	return glm::vec3(translate[0], translate[1], translate[2]);
 }
 bool DrawFaceNormal() {
 	return normalPerFace;
@@ -161,16 +172,19 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		//X axis
 		/*static float ThetaX = 0.0f;*/
-		ImGui::SliderFloat("X rotate",&rotateX,0.0f,360.0f);
+		ImGui::SliderFloat("X rotate Model Frame",&rotateX,0.0f,360.0f);
 		//Y axis
 		static float ThetaY = 0.0f;
-		ImGui::SliderFloat("Y rotate", &rotateY, 0.0f, 360.0f);
+		ImGui::SliderFloat("Y rotate Model Frame", &rotateY, 0.0f, 360.0f);
 		//Z axis
 		static float ThetaZ = 0.0f;
-		ImGui::SliderFloat("Z rotate", &rotateZ, 0.0f, 360.0f);
-		/*rotateX = ThetaX;
-		rotateY = ThetaY;
-		rotateZ = ThetaZ;*/
+		ImGui::SliderFloat("Z rotate Model Frame", &rotateZ, 0.0f, 360.0f);
+	}
+	//rotation in world frame
+	{
+		ImGui::SliderFloat("X rotate World Frame", &worldRotateX, 0.0f, 360.0f);
+		ImGui::SliderFloat("Y rotate World Frame", &worldRotateY, 0.0f, 360.0f);
+		ImGui::SliderFloat("Z rotate World Frame", &worldRotateZ,0.0f,360.0f);
 	}
 	//draw normal per vertix
 	{
@@ -184,9 +198,10 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	{
 		ImGui::Checkbox("Bounding Box", &boundingBox);
 	}
-	//sclae mode
+	//sclae model
 	{
-		ImGui::InputFloat("Scale", &scale);
+		ImGui::Text("Model Frame Scale");
+		ImGui::InputFloat3("", scale);
 	}
 	//camera zoom
 	{
@@ -200,8 +215,39 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::InputFloat3("at", at);
 		ImGui::InputFloat3("y axis", y);
 	}
+	//translate in world frame
+	{
+		ImGui::Text("Model Translate");
+		ImGui::InputFloat3("translate", translate);
+	}
+	//
+	{
+		ImGui::Text("Temp");
+		if (ImGui::Button("click")) {
+			temp =!temp;
+		}
+	}
+	//world frame translate
+	{
+		ImGui::Text("World Translate");
+		ImGui::InputFloat3("world translate", WorldTranslate);
+	}
 }
-
+bool getTemp() {
+	return temp;
+}
+glm::vec3 GetWorldTranslateVector() {
+	return glm::vec3(WorldTranslate[0], WorldTranslate[1], WorldTranslate[2]);
+}
+float GetWorldXRotation() {
+	return worldRotateX;
+}
+float GetWorldYRotation() {
+	return worldRotateY;
+}
+float GetWorldZRotation() {
+	return worldRotateZ;
+}
 
 
 

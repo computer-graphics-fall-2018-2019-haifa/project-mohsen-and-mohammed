@@ -32,8 +32,11 @@ public:
 	static glm::mat4 ViewPortTramsform(const float left,const float right,const float buttom,const float top);
 	static glm::vec3 NormalizeVector(const glm::vec3&);
 	static glm::vec3 Normalize(const glm::vec3);
+	static glm::vec4 Normalize(const glm::vec4&);/*this method normalize the vector in hom coordinates*/
 	static float Norm(const glm::vec3);
-	
+	static float floatPresice(float x);
+	static void floatPresice(glm::vec3&);
+	static void floatPresice(glm::vec4&);
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

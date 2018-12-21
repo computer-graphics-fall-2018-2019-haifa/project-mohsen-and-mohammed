@@ -11,19 +11,12 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
-
-
-
-static void printS(glm::vec3 vector) {
-	std::cout << "vector before:" << std::endl;
-	std::cout << "x " << vector.x << " y " << vector.y << " z " << vector.z << std::endl;
+#define DEGREETORADIAN(theta)  (2 * theta / 360.0f*M_PI)
+#define WORLDFRAMEAXIS 30.0f
+#define MODELFRAMAXIS 15.0f
+static void printq(const glm::vec3& v) {
+	std::cout << v.x << " " << v.y << " " << v.z << " " << "SDF" << std::endl;
 }
-
-static void printSS(glm::vec3 vector) {
-	std::cout << "vector after:" << std::endl;
-	std::cout << "x " << vector.x << " y " << vector.y << " z " << vector.z << std::endl;
-}
-
 Renderer::Renderer(int viewportWidth, int viewportHeight, int viewportX, int viewportY) :
 	colorBuffer(nullptr),
 	zBuffer(nullptr)
@@ -92,20 +85,23 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
-	//PrintLineBresenham(200,500,300,100,glm::vec3(0,0,0));
-	//Draw_Line_Bresenham(200, 500, 300, 100, glm::vec3(0, 0, 0));
 	if (scene.GetModelCount() <= 0) return;
-	std::shared_ptr<const MeshModel> activeModel = scene.GetAciveModel();
+	std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
 	static int _r = 0;
 	Camera activeCamera = scene.GetActiveCamera();
 	activeCamera.SetCameraLookAt(GetEye(),GetAt(),GetY());
 	Renderer::UpdateWorldTransform(scene);
+	glm::mat4 modelT = activeModel->GetModelTransformation();
 	glm::mat4 worldT = activeModel->GetWorldTransformation();
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
 	glm::mat4 VpT = Renderer::GetViewPortTramsform();
 	std::vector<glm::vec3> vertix;
-	glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT);
+	glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
+	//print world frame
+	Renderer::PrintWorldFrame(scene);
+	//print model frame
+	Renderer::PrintModelFrame(scene);
 	//print model
 	for (int i = 0; i < activeModel->GetFaceCount(); i++) {
 		vertix = activeModel->GetVertices(i);
@@ -134,10 +130,25 @@ void Renderer::Render(const Scene& scene)
 	if (DrawVertixNormal()) {
 		Renderer::PrintNormalPerVertix(activeModel, finalM);
 	}
+	//debuging
+	if (getTemp()) {
+		static int x = 0;
+		const glm::mat4 worldT = glm::inverse(activeModel->GetWorldTransformation());
+		glm::vec3 Origin = Utils::SwitchFromHom(glm::transpose(worldT) * Utils::HomCoordinats(glm::vec3(0, 0, 0)));
+		//std::cout << Origin.x << " " << Origin.y << " " << Origin.z << std::endl;
+		if (x == 0) {
+			activeModel->SetWorldTransformation(Utils::Translate(Origin)*activeModel->GetWorldTransformation());
+		}
+		x++;
+	}
+	/*static int debug = 0;
+	if (debug++ == 0) {
+		const glm::mat4 temp = Utils::RotateAround(M_PI/2, glm::vec3(0, 0, 0), glm::vec3(1, 0, 0));
+		const glm::vec4 t = glm::transpose(temp)*glm::vec4(0, 0,  1, 1);
+		std::cout << Utils::floatPresice(t.x )<< " " << t.y << " " << Utils::floatPresice(t.z) << " " << std::endl;
+		std::cout << Utils::floatPresice(t.x*t.x + t.y*t.y + t.z*t.z) << std::endl;
+	}*/
 }
-
-
-
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
 {
@@ -182,12 +193,6 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 		}
 	}
 }
-
-
-
-
-
-
 
 //##############################
 //##OpenGL stuff. Don't touch.##
@@ -309,41 +314,15 @@ void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, fl
 }
 
 void Renderer::UpdateWorldTransform(const Scene& scene) const {
-	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
-	glm::mat4 modelTransform= activeModel->GetWorldTransformation();
-	static float thetaX= GetXAxisRotation();
-	static float thetaY = GetYAxisRotation();
-	static float thetaZ = GetZAxisRotation();
-	if (thetaX != GetXAxisRotation()) {
-		float dif=GetXAxisRotation()-thetaX;
-		activeModel->SetWorldTransformation(Utils::RotateOrigin(2*dif/360.0f*M_PI,X)*activeModel->GetWorldTransformation());
-		thetaX += dif;
-	}
-	else if (thetaY!=GetYAxisRotation()) {
-		float dif = GetYAxisRotation()-thetaY;
-		activeModel->SetWorldTransformation(Utils::RotateOrigin(2*dif / 360.0f*M_PI, Y)*activeModel->GetWorldTransformation());
-		thetaY += dif;
-	}
-	else if(thetaZ!=GetZAxisRotation()){
-		float dif=GetZAxisRotation()- thetaZ;
-		activeModel->SetWorldTransformation(Utils::RotateOrigin(2*dif / 360.0f*M_PI, Z)*activeModel->GetWorldTransformation());
-		thetaZ += dif;
-	}
-	static float scale = GetScale();
-	if (scale!=GetScale()) {
-		float dif = GetScale()/scale;
-		activeModel->SetWorldTransformation(Utils::Scale(glm::vec3(dif, dif, dif))*activeModel->GetWorldTransformation());
-		scale = GetScale();
-	}
-	
+	Renderer::UpdateModelTranslate(scene);
+	Renderer::UpdateWorldTranslate(scene);
+	Renderer::UpdateModelRotation(scene);
+	Renderer::UpdateModelScale(scene);
+	Renderer::UpdateWorldRotation(scene);
 }
-
 void Renderer::UpdateViewTransform(const Scene& scene) const {
 	//TODO
 }
-
-
-
 void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
 	if (model->GetFaceCount() <= 0) return;
 	for (int i = 0; i < model->GetFaceCount();i++) {
@@ -352,7 +331,6 @@ void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::m
 		Renderer::PrintLine(triangleCenter, normalDirection,mat);
 	}
 }
-
 void Renderer::PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4 matrix) {
 	glm::vec3 up1, up2, up3, up4, down1, down2, down3, down4;
 	const float minX=model->getMinX()
@@ -382,7 +360,6 @@ void Renderer::PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4
 	Renderer::PrintLine(up3, down3 - up3, matrix);
 	Renderer::PrintLine(up4, down4 - up4, matrix);
 }
-
 void Renderer::PrintNormalPerVertix(std::shared_ptr<const MeshModel> model, glm::mat4 matrix)  {
 	if (model == nullptr) return;
 	for (int i = 0; i < model->GetVerticesCount();i++) {
@@ -394,13 +371,118 @@ glm::mat4 Renderer::GetViewPortTramsform()const {
 	glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
 	return  scaleM*translateM;
 }
-
-void Renderer::PrintLineBresenham(const glm::vec3& point1, const glm::vec3& point2) {
-	Renderer::PrintLineBresenham(point1.x,point1.y,point2.x,point2.y, GetMeshColor());
+void Renderer::PrintLineBresenham(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color) {
+	Renderer::PrintLineBresenham(point1.x,point1.y,point2.x,point2.y, color);
 }
-
-void Renderer::PrintLine(const glm::vec3& point, const glm::vec3& direction, glm::mat4 transform) {
+void Renderer::PrintLine(const glm::vec3& point, const glm::vec3& direction, glm::mat4 transform,const glm::vec3& color) {
 	const glm::vec3 temp1 = Utils::SwitchFromHom((transform)*Utils::HomCoordinats(point));
 	const glm::vec3 temp2 = Utils::SwitchFromHom((transform)*Utils::HomCoordinats(point+direction));
-	Renderer::PrintLineBresenham(temp1, temp2);
+	Renderer::PrintLineBresenham(temp1, temp2,color);
+}
+void Renderer::UpdateModelScale(const Scene& scene)const {
+	if (GetScale().x == 0 || GetScale().y == 0 || GetScale().z == 0) return;
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	float difX= GetScale().x/activeModel->getModelScale().x;
+	float difY= GetScale().y/ activeModel->getModelScale().y;
+	float difZ= GetScale().z/ activeModel->getModelScale().z;
+	activeModel->SetModelTransformation(Utils::Scale(glm::vec3(difX, difY, difZ))*activeModel->GetModelTransformation());
+	activeModel->setModelScale(GetScale());
+}
+void Renderer::PrintFrame(const float length, const glm::mat4 matrix) {
+	const glm::vec3 Origin(0, 0, 0);
+	Renderer::PrintLine(Origin, glm::vec3(length, 0, 0), matrix,glm::vec3(1,0,0));
+	Renderer::PrintLine(Origin, glm::vec3(0, length, 0), matrix,glm::vec3(0,1,0));
+	Renderer::PrintLine(Origin, glm::vec3(0, 0, length), matrix,glm::vec3(0,0,1));
+}
+void Renderer::PrintWorldFrame(const Scene& scene) {
+	Camera activeCamera = scene.GetActiveCamera();
+	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
+	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	glm::mat4 VpT = Renderer::GetViewPortTramsform();
+	Renderer::PrintFrame(WORLDFRAMEAXIS, glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT));
+}
+void Renderer::PrintModelFrame(const Scene& scene) {
+	glm::vec3 scale = GetScale();
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	Camera activeCamera = scene.GetActiveCamera();
+	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
+	glm::mat4 wT = activeModel->GetWorldTransformation();
+	wT =/* Utils::Scale(glm::vec3(1 / scale.x, 1 / scale.y, 1 / scale.z))*/wT;
+	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	glm::mat4 VpT = Renderer::GetViewPortTramsform();
+	Renderer::PrintFrame(WORLDFRAMEAXIS, glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(wT));
+}
+void Renderer::UpdateModelTranslate(const Scene& scene)const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	const glm::vec3 previousTranslate = activeModel->getModelTranslate();
+	const glm::vec3 newTranslate = GetWorldTranslate();
+	if (previousTranslate==newTranslate) return;
+	const float difX = newTranslate.x- previousTranslate.x ;
+	const float difY = newTranslate.y-previousTranslate.y;
+	const float difZ = newTranslate.z-previousTranslate.z;
+	glm::vec3 temp = GetScale();
+	activeModel->SetModelTransformation(activeModel->GetModelTransformation()*(Utils::Translate(glm::vec3(difX, difY, difZ))));
+	activeModel->setModelTranslate(newTranslate);
+}
+void Renderer::UpdateWorldTranslate(const Scene& scene)const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	const glm::vec3 translateVector = activeModel->getWorldTranslate();
+	const glm::vec3 newTranslateVector = GetWorldTranslateVector();
+	const glm::vec3 dif = newTranslateVector - translateVector;
+	//glm::vec3 temp = GetScale();
+	//temp.x = dif.x / temp.x; temp.y = dif.y / temp.y; temp.z = dif.z / temp.z;
+	activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*Utils::Translate(dif));
+	activeModel->setWorldTranslate(newTranslateVector);
+}
+void Renderer::UpdateWorldRotation(const Scene& scene)const {
+	if (scene.GetModelCount() <= 0)return;
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	const glm::mat4 activeInverseTransformation = glm::inverse(activeModel->GetWorldTransformation());
+	 glm::vec3 WorldXAxixDirection = (activeModel->CalculateInModelFrameDirection(glm::vec3(1, 0, 0)));
+	 glm::vec3 WorldYAxisDirection = (activeModel->CalculateInModelFrameDirection(glm::vec3(0, 1, 0)));
+	 glm::vec3 WorldZAxisDirection = activeModel->CalculateInModelFrameDirection(glm::vec3(0, 0, 1));
+	 glm::vec3 WorldOriginInModelFrame = activeModel->CalculateInModelFrame(glm::vec3(0, 0, 0));
+	if (activeModel->getWorldThetaX() != GetWorldXRotation()) {
+		const float dif = GetWorldXRotation() - activeModel->getWorldThetaX();
+		//std::cout << WorldXAxixDirection.x << " " << WorldXAxixDirection.y << " " << WorldXAxixDirection.z << " S" << std::endl;
+		const glm::mat4 rotateMatrix = Utils::RotateOrigin(DEGREETORADIAN(dif),X);
+		//const glm::mat4 rotateMatrix = Utils::Translate(WorldOriginInModelFrame*-1.0f)*Utils::RotateOrigin(dif,X)*Utils::Translate(WorldOriginInModelFrame);
+		activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*rotateMatrix);
+		activeModel->setWorldThetaX(GetWorldXRotation());
+	}
+	else if (activeModel->getWorldThetaY() != GetWorldYRotation()) {
+		const float dif = GetWorldYRotation() - activeModel->getWorldThetaY();
+		const glm::mat4 rotateMatrix = Utils::RotateOrigin(DEGREETORADIAN(dif),Y);
+		activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*rotateMatrix);
+		activeModel->setWorldThetaY(GetWorldYRotation());
+	}
+	else if (activeModel->getWorldThetaZ() != GetWorldZRotation()) {
+		const float dif = GetWorldZRotation() - activeModel->getWorldThetaZ();
+		const glm::mat4 rotateMatrix = Utils::RotateOrigin(DEGREETORADIAN(dif),Z);
+		activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*rotateMatrix);
+		activeModel->setWorldThetaZ(GetWorldZRotation());
+	}
+}
+void Renderer::UpdateModelRotation(const Scene& scene) const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	if (activeModel->getModelThetaX() != GetXAxisRotation()) {
+		const float dif = GetXAxisRotation() - activeModel->getModelThetaX();
+		activeModel->setModelThetaX(GetXAxisRotation());
+		activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::RotateOrigin(DEGREETORADIAN(dif), X));
+	}
+	else if (activeModel->getModelThetyaY() != GetYAxisRotation()) {
+		const float dif = GetYAxisRotation() - activeModel->getModelThetyaY();
+		activeModel->setModelThetaY(GetYAxisRotation());
+		activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::RotateOrigin(DEGREETORADIAN(dif), Y));
+	}
+	else if (activeModel->getModelThetaZ() != GetZAxisRotation()) {
+		const float dif = GetZAxisRotation() - activeModel->getModelThetaZ();
+		activeModel->setModelThetaZ(GetZAxisRotation());
+		activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::RotateOrigin(DEGREETORADIAN(dif), Z));
+	}
+	static int x = 0;
+	if (x++ == 0)
+		activeModel->SetWorldTransformation(Utils::RotateAround(getTemp(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0))*activeModel->GetWorldTransformation());
 }

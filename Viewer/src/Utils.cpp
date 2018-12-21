@@ -176,16 +176,16 @@ glm::mat4 Utils::RotateOrigin(const float theta,const AXIS around) {
 }
 
 glm::mat4 Utils::RotateAround(const float theta, const glm::vec3& point,const glm::vec3& direction) {
-	const float x=direction.x-point.x;
+	const float x= direction.x-point.x;
 	const float y = direction.y - point.y;
 	const float z = direction.z - point.z;
 	const float thetaX=asinf(z/sqrtf(x*x+y*y+z*z));
-	const float thetaY=acosf(y/sqrtf(x*x+y*y));
+	const float thetaY= acosf(y/sqrtf(x*x+y*y));
 	//const float thetaZ=theta;
-	glm::vec3& minusPoint=SwitchFromHom(Utils::Scale(glm::vec3(-1,-1,-1))*HomCoordinats(point));
+	glm::vec3& minusPoint=point*-1.0f;
 	glm::mat4 moveToOrigin = Utils::RotateOrigin(-thetaY, Y)*Utils::RotateOrigin(-thetaX, X)*Utils::Translate(minusPoint);
 	glm::mat4 moveToOriginInverse = Utils::Translate(point)*Utils::RotateOrigin(thetaX,X)*Utils::RotateOrigin(thetaY,Y);
-	return moveToOriginInverse*Utils::RotateOrigin(theta,Z)*moveToOrigin;
+	return moveToOriginInverse* Utils::RotateOrigin(theta, Z)*moveToOrigin;
 }
 
 glm::vec3 Utils::NormalizeVector(const glm::vec3& vector1) {
@@ -212,3 +212,30 @@ glm::vec3 Utils::Normalize(const glm::vec3 vector) {
 float Utils::Norm(const glm::vec3 vector) {
 	return sqrtf(vector.x*vector.x + vector.y * vector.y + vector.z * vector.z);
 }
+float Utils::floatPresice(float x) {
+	return (fabs(x - (int)x) <= 1.0f/360.0f) ? (int)x : x;
+}
+void Utils::floatPresice(glm::vec3& vec) {
+	vec.x = floatPresice(vec.x);
+	vec.y = floatPresice(vec.y);
+	vec.z = floatPresice(vec.z);
+}
+void Utils::floatPresice(glm::vec4& vec) {
+	vec.x = floatPresice(vec.x);
+	vec.y = floatPresice(vec.y);
+	vec.z = floatPresice(vec.z);
+	vec.w = floatPresice(vec.w);
+}
+glm::vec4 Utils::Normalize(const glm::vec4& v) {
+	const float d = 1.0f / sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
+	return glm::vec4(v.x*d ,v.y*d , v.z*d, 1);
+}
+/*
+glm::vec3 Utils::ConvertFrame(const glm::vec3& vector, const glm::mat4& transform) {
+	//the regular basis of eculidean space
+	const glm::vec4 v1(1, 0, 0,1), v2(0, 1, 0,1), v3(0, 0, 1,1);
+	//the basis of the frame that we must calculate the new coordinates
+	const glm::vec4 u1 = transform * v1, u2 = transform * v2, u3 = transform * v3;
+	//we compute the the transformation matrix from regular basis to the new basis
+
+}*/
