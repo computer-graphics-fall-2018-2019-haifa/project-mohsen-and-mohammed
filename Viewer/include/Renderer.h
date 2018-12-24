@@ -45,6 +45,9 @@ private:
 	void PrintFrame(const float length,const glm::mat4 matrix);
 	void PrintWorldFrame(const Scene& scene);
 	void PrintModelFrame(const Scene& scene);
+	void PrintModel(std::shared_ptr<const MeshModel> model,glm::mat4 matrix);
+	void UpdateCameraRotate(const Scene& scene)const;
+	void UpdateCameraLookAt(const Scene& scene)const;
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();

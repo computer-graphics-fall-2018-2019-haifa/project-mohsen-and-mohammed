@@ -87,9 +87,8 @@ void Renderer::Render(const Scene& scene)
 {
 	if (scene.GetModelCount() <= 0) return;
 	std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
-	static int _r = 0;
 	Camera activeCamera = scene.GetActiveCamera();
-	activeCamera.SetCameraLookAt(GetEye(),GetAt(),GetY());
+	//Renderer::UpdateViewTransform(scene);
 	Renderer::UpdateWorldTransform(scene);
 	glm::mat4 modelT = activeModel->GetModelTransformation();
 	glm::mat4 worldT = activeModel->GetWorldTransformation();
@@ -103,21 +102,7 @@ void Renderer::Render(const Scene& scene)
 	//print model frame
 	Renderer::PrintModelFrame(scene);
 	//print model
-	for (int i = 0; i < activeModel->GetFaceCount(); i++) {
-		vertix = activeModel->GetVertices(i);
-		float x[3], y[3];
-		glm::vec4 transformedV[3];
-		if (vertix.size() == 3) {
-			for (int k = 0; k < 3; k++){
-				transformedV[k] = finalM*Utils::HomCoordinats(vertix.at(k));
-				//transformedV[k] = glm::transpose(worldT*Utils::Scale(glm::vec3(20000, 20000, 20000))*IvT*pT*Utils::Translate(glm::vec3(300, 300, 300)))*Utils::HomCoordinats(vertix.at(k));
-				x[k] = transformedV[k].x;
-				y[k] = transformedV[k].y;
-			}
-			drawTraingle(x[0], y[0], x[1], y[1], x[2], y[2], GetMeshColor());
-		}
-		vertix.clear();
-	}
+	Renderer::PrintModel(activeModel, finalM);
 	//print normal per face
 	if (DrawFaceNormal()) {
 		Renderer::PrintNormalPerFace(activeModel, finalM);
@@ -130,24 +115,6 @@ void Renderer::Render(const Scene& scene)
 	if (DrawVertixNormal()) {
 		Renderer::PrintNormalPerVertix(activeModel, finalM);
 	}
-	//debuging
-	if (getTemp()) {
-		static int x = 0;
-		const glm::mat4 worldT = glm::inverse(activeModel->GetWorldTransformation());
-		glm::vec3 Origin = Utils::SwitchFromHom(glm::transpose(worldT) * Utils::HomCoordinats(glm::vec3(0, 0, 0)));
-		//std::cout << Origin.x << " " << Origin.y << " " << Origin.z << std::endl;
-		if (x == 0) {
-			activeModel->SetWorldTransformation(Utils::Translate(Origin)*activeModel->GetWorldTransformation());
-		}
-		x++;
-	}
-	/*static int debug = 0;
-	if (debug++ == 0) {
-		const glm::mat4 temp = Utils::RotateAround(M_PI/2, glm::vec3(0, 0, 0), glm::vec3(1, 0, 0));
-		const glm::vec4 t = glm::transpose(temp)*glm::vec4(0, 0,  1, 1);
-		std::cout << Utils::floatPresice(t.x )<< " " << t.y << " " << Utils::floatPresice(t.z) << " " << std::endl;
-		std::cout << Utils::floatPresice(t.x*t.x + t.y*t.y + t.z*t.z) << std::endl;
-	}*/
 }
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
@@ -272,7 +239,6 @@ void Renderer::initOpenGLRendering()
 	// Tells the shader to use GL_TEXTURE0 as the texture id.
 	glUniform1i(glGetUniformLocation(program, "texture"),0);
 }
-
 void Renderer::createOpenGLBuffer()
 {
 	// Makes GL_TEXTURE0 the current active texture unit
@@ -285,7 +251,6 @@ void Renderer::createOpenGLBuffer()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, viewportWidth, viewportHeight, 0, GL_RGB, GL_FLOAT, NULL);
 	glViewport(0, 0, viewportWidth, viewportHeight);
 }
-
 void Renderer::SwapBuffers()
 {
 	// Makes GL_TEXTURE0 the current active texture unit
@@ -306,23 +271,22 @@ void Renderer::SwapBuffers()
 	// Finally renders the data.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-
 void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color)  {
 	Renderer::PrintLineBresenham(x1, y1, x2, y2, color);
 	Renderer::PrintLineBresenham(x2, y2, x3, y3,color);
 	Renderer::PrintLineBresenham(x3, y3, x1, y1, color);
 }
-
 void Renderer::UpdateWorldTransform(const Scene& scene) const {
 	Renderer::UpdateModelTranslate(scene);
 	Renderer::UpdateWorldTranslate(scene);
 	Renderer::UpdateModelRotation(scene);
 	Renderer::UpdateModelScale(scene);
 	Renderer::UpdateWorldRotation(scene);
-}
+}/*
 void Renderer::UpdateViewTransform(const Scene& scene) const {
-	//TODO
-}
+	Renderer::UpdateCameraLookAt(scene);
+	Renderer::UpdateCameraRotate(scene);
+}**/
 void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
 	if (model->GetFaceCount() <= 0) return;
 	for (int i = 0; i < model->GetFaceCount();i++) {
@@ -395,8 +359,9 @@ void Renderer::PrintFrame(const float length, const glm::mat4 matrix) {
 	Renderer::PrintLine(Origin, glm::vec3(0, 0, length), matrix,glm::vec3(0,0,1));
 }
 void Renderer::PrintWorldFrame(const Scene& scene) {
+	if (scene.GetCameraCount() <= 0) return;
 	Camera activeCamera = scene.GetActiveCamera();
-	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
+	//activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
 	glm::mat4 VpT = Renderer::GetViewPortTramsform();
@@ -406,9 +371,8 @@ void Renderer::PrintModelFrame(const Scene& scene) {
 	glm::vec3 scale = GetScale();
 	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
 	Camera activeCamera = scene.GetActiveCamera();
-	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
+	//activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
 	glm::mat4 wT = activeModel->GetWorldTransformation();
-	wT =/* Utils::Scale(glm::vec3(1 / scale.x, 1 / scale.y, 1 / scale.z))*/wT;
 	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
 	glm::mat4 pT = activeCamera.GetProjectionTransform();
 	glm::mat4 VpT = Renderer::GetViewPortTramsform();
@@ -422,7 +386,6 @@ void Renderer::UpdateModelTranslate(const Scene& scene)const {
 	const float difX = newTranslate.x- previousTranslate.x ;
 	const float difY = newTranslate.y-previousTranslate.y;
 	const float difZ = newTranslate.z-previousTranslate.z;
-	glm::vec3 temp = GetScale();
 	activeModel->SetModelTransformation(activeModel->GetModelTransformation()*(Utils::Translate(glm::vec3(difX, difY, difZ))));
 	activeModel->setModelTranslate(newTranslate);
 }
@@ -431,8 +394,6 @@ void Renderer::UpdateWorldTranslate(const Scene& scene)const {
 	const glm::vec3 translateVector = activeModel->getWorldTranslate();
 	const glm::vec3 newTranslateVector = GetWorldTranslateVector();
 	const glm::vec3 dif = newTranslateVector - translateVector;
-	//glm::vec3 temp = GetScale();
-	//temp.x = dif.x / temp.x; temp.y = dif.y / temp.y; temp.z = dif.z / temp.z;
 	activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*Utils::Translate(dif));
 	activeModel->setWorldTranslate(newTranslateVector);
 }
@@ -446,9 +407,7 @@ void Renderer::UpdateWorldRotation(const Scene& scene)const {
 	 glm::vec3 WorldOriginInModelFrame = activeModel->CalculateInModelFrame(glm::vec3(0, 0, 0));
 	if (activeModel->getWorldThetaX() != GetWorldXRotation()) {
 		const float dif = GetWorldXRotation() - activeModel->getWorldThetaX();
-		//std::cout << WorldXAxixDirection.x << " " << WorldXAxixDirection.y << " " << WorldXAxixDirection.z << " S" << std::endl;
 		const glm::mat4 rotateMatrix = Utils::RotateOrigin(DEGREETORADIAN(dif),X);
-		//const glm::mat4 rotateMatrix = Utils::Translate(WorldOriginInModelFrame*-1.0f)*Utils::RotateOrigin(dif,X)*Utils::Translate(WorldOriginInModelFrame);
 		activeModel->SetWorldTransformation(activeModel->GetWorldTransformation()*rotateMatrix);
 		activeModel->setWorldThetaX(GetWorldXRotation());
 	}
@@ -482,7 +441,36 @@ void Renderer::UpdateModelRotation(const Scene& scene) const {
 		activeModel->setModelThetaZ(GetZAxisRotation());
 		activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::RotateOrigin(DEGREETORADIAN(dif), Z));
 	}
-	static int x = 0;
-	if (x++ == 0)
-		activeModel->SetWorldTransformation(Utils::RotateAround(getTemp(), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0))*activeModel->GetWorldTransformation());
 }
+void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform) {
+	for (int j = 0; j < activeModel->GetFaceCount(); j++) {
+		std::vector<glm::vec3> vertix = activeModel->GetVertices(j);
+		for (int i = 0; i < 3; i++) {
+			Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, GetMeshColor());
+		}
+		vertix.clear();
+	}
+}/**
+void Renderer::UpdateCameraRotate(const Scene& scene) const{
+	if (scene.GetCameraCount() <= 0) return;
+	Camera activeCamera = scene.GetActiveCamera();
+	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
+	if (activeCamera.getXRotate()!= GetCamXRotate()) {
+		const float dif = -activeCamera.getXRotate() + GetCamXRotate();
+		glm::vec3 newEye = Utils::SwitchFromHom(glm::transpose(Utils::RotateOrigin(DEGREETORADIAN(dif), X))*Utils::HomCoordinats(GetEye()));
+		scene.UpdateActiveCameraXRotate(GetCamXRotate());
+		UpdateEye(newEye);
+		activeCamera.SetCameraLookAt(newEye, GetAt(), GetY());
+	}
+	else if (activeCamera.getYRotate()!=GetCamYRotate()) {
+
+	}
+	else if (activeCamera.getZRotate()!=GetCamZRotate()) {
+
+	}
+}
+void Renderer::UpdateCameraLookAt(const Scene& scene)const {
+	if (scene.GetCameraCount() <= 0) return;
+	Camera activeCam = scene.GetActiveCamera();
+	activeCam.SetCameraLookAt(GetEye(),GetAt(),GetY());
+}*/

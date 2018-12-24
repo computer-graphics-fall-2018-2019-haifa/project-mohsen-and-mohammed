@@ -38,6 +38,25 @@ public:
 	std::shared_ptr< MeshModel> GetAciveModel()const;
 
 	const Camera& GetActiveCamera()const;
+	void UpdateActiveCameraXRotate(const float x);
+
+	float GetActiveCameraXRotate()const;
+	void UpdateActiveCameraYRotate(const float x);
+	float GetActiveCameraYRotate()const;
+	void UpdateActiveCameraZRotate(const float x);
+	float GetActiveCameraZRotate()const;
+
+	void ActiveCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
+
+	void ActiveCamerSetOrth(const float height,
+		const float aspectRatio,
+		const float near,
+		const float far);
+	void ActiveCameraSerPers(const float fovy,
+		const float aspect,
+		const float near,
+		const float far);
+
 
 
 };

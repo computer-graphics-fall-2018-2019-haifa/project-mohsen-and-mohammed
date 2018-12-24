@@ -22,3 +22,6 @@ bool DrawVertixNormal();
 bool DrawBoundingBox();
 bool getTemp();
 glm::vec3 GetWorldTranslateVector();
+float GetCamXRotate();
+float GetCamYRotate();
+float GetCamZRotate();

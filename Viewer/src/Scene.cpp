@@ -64,3 +64,40 @@ std::shared_ptr<MeshModel> Scene::GetAciveModel()const {
 const Camera& Scene::GetActiveCamera()const {
 	return cameras.at(this->GetActiveCameraIndex());
 }
+void Scene::UpdateActiveCameraXRotate(const float x) {
+	cameras.at(this->GetActiveCameraIndex()).setXRotate(x);
+}
+
+float Scene::GetActiveCameraXRotate()const {
+	return cameras.at(activeCameraIndex).getXRotate();
+}
+
+float Scene::GetActiveCameraYRotate()const {
+	return cameras.at(activeCameraIndex).getYRotate();
+}
+void Scene::UpdateActiveCameraYRotate(const float y) {
+	cameras.at(activeCameraIndex).setYRotate(y);
+}
+float Scene::GetActiveCameraZRotate()const {
+	return cameras.at(activeCameraIndex).getZRotate();
+}
+void Scene::UpdateActiveCameraZRotate(const float z) {
+	cameras.at(activeCameraIndex).setZRotate(z);
+}
+
+void Scene::ActiveCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up) {
+	cameras.at(activeCameraIndex).SetCameraLookAt(eye, at, up);
+}
+
+void Scene::ActiveCamerSetOrth(const float height,
+	const float aspectRatio,
+	const float _near,
+	const float _far) {
+	cameras.at(activeCameraIndex).SetOrthographicProjection(height, aspectRatio, _near, _far);
+}
+void Scene::ActiveCameraSerPers(const float fovy,
+	const float aspect,
+	const float _near,
+	const float _far) {
+	cameras.at(activeCameraIndex).SetPerspectiveProjection(fovy, aspect, _near, _far);
+}

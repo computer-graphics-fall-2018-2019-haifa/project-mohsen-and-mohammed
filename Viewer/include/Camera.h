@@ -27,14 +27,18 @@ private:
 	float _near;
 	float _far;
 
+	float rotateX;
+	float rotateY;
+	float rotateZ;
+
 	glm::mat4 calculateOrthProjectionMatrix(const float height,
 		const float aspectRatio,
-		const float near,
-		const float far)const ;
+		const float _near,
+		const float _far)const ;
 	glm::mat4 calculatePersProjetionMatrix(const float fovy,
 		const float aspect,
-		const float near,
-		const float far)const;
+		const float _near,
+		const float _far)const;
 	bool AUX_CanBeSeen(const glm::vec4&) const;
 public:
 	Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up);
@@ -59,6 +63,13 @@ public:
 	bool CanBeSeen(const std::vector<glm::vec4>&) const;
 	const glm::mat4& GetInverseViewTranform()const;
 	const glm::mat4& GetProjectionTransform()const;
+
+	float getXRotate()const;
+	void setXRotate(const float t);
+	float getYRotate()const;
+	void setYRotate(const float t);
+	float getZRotate()const;
+	void setZRotate(const float t);
 
 };
 
