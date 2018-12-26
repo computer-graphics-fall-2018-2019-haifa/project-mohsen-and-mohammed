@@ -3,7 +3,7 @@
 #include <string>
 #include "MeshModel.h"
 #include <cmath>
-
+#include "MeshModel.h"
 /*
  * Utils class.
  * This class is consisted of static helper methods that can have many clients across the code.
@@ -12,6 +12,7 @@ enum AXIS { X = 'x', Y = 'y', Z = 'z' };
 enum PROJECTION { ORTH = 'O', PERS = 'P' };
 class Utils
 {
+	static std::shared_ptr<MeshModel> cam;
 public:
 	static glm::vec3 Vec3fFromStream(std::istream& issLine);
 	static glm::vec2 Vec2fFromStream(std::istream& issLine);
@@ -37,6 +38,7 @@ public:
 	static float floatPresice(float x);
 	static void floatPresice(glm::vec3&);
 	static void floatPresice(glm::vec4&);
+	static MeshModel getCameraModel();
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

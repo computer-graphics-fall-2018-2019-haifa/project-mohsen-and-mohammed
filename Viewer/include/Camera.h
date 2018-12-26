@@ -22,14 +22,23 @@ private:
 	PROJECTION pro;
 	float _zoom;
 	float _height;
-	float _aspectRatio;
+	float _aspectRatiop;
+	float _aspectRatioo;
 	float _fovy;
-	float _near;
-	float _far;
+	float _nearo;
+	float _faro;
+	float _nearp;
+	float _farp;
 
 	float rotateX;
 	float rotateY;
 	float rotateZ;
+
+	glm::vec4 eye;
+	glm::vec4 at;
+	glm::vec4 y;
+
+
 
 	glm::mat4 calculateOrthProjectionMatrix(const float height,
 		const float aspectRatio,
@@ -70,6 +79,23 @@ public:
 	void setYRotate(const float t);
 	float getZRotate()const;
 	void setZRotate(const float t);
+
+	glm::vec3 getEye()const;
+	void setEye(const glm::vec3& vec);
+	glm::vec3 getAt()const;
+	void setAt(const glm::vec3& vec);
+	glm::vec3 getY()const;
+	void setY(const glm::vec3& vec);
+
+	float getFovy()const;
+	float getNearO()const;
+	float getFarO()const;
+	float getNearP()const;
+	float getFarP()const;
+	float getAspectO()const;
+	float getAspectP()const;
+	float getHeight()const;
+	float getZoom()const;
 
 };
 

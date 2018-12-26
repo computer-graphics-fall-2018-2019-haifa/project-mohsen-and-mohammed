@@ -230,12 +230,6 @@ glm::vec4 Utils::Normalize(const glm::vec4& v) {
 	const float d = 1.0f / sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 	return glm::vec4(v.x*d ,v.y*d , v.z*d, 1);
 }
-/*
-glm::vec3 Utils::ConvertFrame(const glm::vec3& vector, const glm::mat4& transform) {
-	//the regular basis of eculidean space
-	const glm::vec4 v1(1, 0, 0,1), v2(0, 1, 0,1), v3(0, 0, 1,1);
-	//the basis of the frame that we must calculate the new coordinates
-	const glm::vec4 u1 = transform * v1, u2 = transform * v2, u3 = transform * v3;
-	//we compute the the transformation matrix from regular basis to the new basis
-
-}*/
+MeshModel Utils::getCameraModel() {
+	return Utils::LoadMeshModel("C:\\Users\\USER\\Documents\\GitHub\\project-mohsen-and-mohammed\\Data\\camera.obj");
+}

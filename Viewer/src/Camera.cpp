@@ -7,9 +7,11 @@
 #define RADIAN(theta)  (2 * theta / 360.0f*M_PI)
 
 Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
-	_zoom(1.0),_height(0.0f),_aspectRatio(0.0f),_fovy(0.0f),_near(0.0f),_far(0.0f),
-	rotateX(0.0f),rotateY(0.0f),rotateZ(0.0f)
+	_zoom(1.0),_height(0.0f),_aspectRatiop(0.0f), _aspectRatioo(0.0f), _fovy(0.0f),_nearo(0.0f),_faro(0.0f),
+	_nearp(0.0f),_farp(0.0f),rotateX(0.0f),rotateY(0.0f),rotateZ(0.0f),eye(glm::vec4(0))
+	,at(glm::vec4(0)),y(glm::vec4(0))
 {
+	this->eye = eye; this->at = at; this->y = y;
 	SetCameraLookAt(Utils::SwitchFromHom(eye), Utils::SwitchFromHom(at), Utils::SwitchFromHom(up));
 }
 Camera::~Camera()
@@ -17,6 +19,7 @@ Camera::~Camera()
 }
 void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up)
 {
+	this->eye = Utils::HomCoordinats(eye); this->at = Utils::HomCoordinats(at); this->y = Utils::HomCoordinats(up);
 	glm::vec3 z = Utils::NormalizeVector(eye-at);
 	glm::vec3 x = Utils::NormalizeVector(Utils::crossProduct(up, z));
 	glm::vec3 y = Utils::NormalizeVector(Utils::crossProduct(z, x));
@@ -30,9 +33,9 @@ void Camera::SetOrthographicProjection(
 	const float _far)
 {
 	this->_height = height;
-	this->_aspectRatio = aspectRatio;
-	this->_near = _near;
-	this->_far = _far;
+	this->_aspectRatioo = aspectRatio;
+	this->_nearo = _near;
+	this->_faro = _far;
 	this->pro = ORTH;
 	this->projectionTransformation = calculateOrthProjectionMatrix(height, aspectRatio, _near, _far);
 
@@ -44,9 +47,9 @@ void Camera::SetPerspectiveProjection(
 	const float far)
 {
 	this->_fovy = fovy;
-	this->_aspectRatio = aspectRatio;
-	this->_near = near;
-	this->_far = far;
+	this->_aspectRatiop = aspectRatio;
+	this->_nearp = near;
+	this->_farp = far;
 	this->pro = PERS;
 	this->projectionTransformation = calculatePersProjetionMatrix(fovy, aspectRatio, near, far);
 }
@@ -95,7 +98,6 @@ float Camera::getXRotate()const {
 }
 void Camera::setXRotate(const float t) {
 	rotateX = t;
-	std::cout << "ASD " << rotateX << std::endl;
 }
 float Camera::getYRotate()const {
 	return rotateY;
@@ -108,4 +110,49 @@ float Camera::getZRotate()const {
 }
 void Camera::setZRotate(const float t) {
 	rotateZ = t;
+}
+glm::vec3 Camera::getEye()const {
+	return Utils::SwitchFromHom(eye);
+}
+void Camera::setEye(const glm::vec3& vec) {
+	eye = Utils::HomCoordinats(vec);
+}
+glm::vec3 Camera::getAt()const {
+	return Utils::SwitchFromHom(at);
+}
+void Camera::setAt(const glm::vec3& vec) {
+	at = Utils::HomCoordinats(vec);
+}
+glm::vec3 Camera::getY()const {
+	return Utils::SwitchFromHom(y);
+}
+void Camera::setY(const glm::vec3& vec) {
+	y = Utils::HomCoordinats(vec);
+}
+float Camera::getFovy()const {
+	return _fovy;
+}
+float Camera::getNearO()const {
+	return _nearo;
+}
+float Camera::getFarO()const {
+	return _faro;
+}
+float Camera::getNearP()const {
+	return _nearp;
+}
+float Camera::getFarP()const {
+	return _farp;
+}
+float Camera::getAspectO()const {
+	return _aspectRatioo;
+}
+float Camera::getAspectP()const {
+	return _aspectRatiop;
+}
+float Camera::getHeight()const {
+	return _height;
+}
+float Camera::getZoom()const {
+	return _zoom;
 }

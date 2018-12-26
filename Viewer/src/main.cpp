@@ -144,6 +144,7 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 	glfwGetFramebufferSize(window, &frameBufferWidth, &frameBufferHeight);
 
 	// Resize handling here... (a suggestion)
+	renderer.SetViewport(frameBufferWidth, frameBufferHeight);
 
 	// Clear the frame buffer
 	renderer.ClearColorBuffer(GetClearColor());
@@ -156,7 +157,6 @@ void RenderFrame(GLFWwindow* window, Scene& scene, Renderer& renderer, ImGuiIO& 
 
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	glfwSwapBuffers(window);
-	std::cout << "3-" << scene.GetActiveCamera().getXRotate() << std::endl;
 }
 
 void Cleanup(GLFWwindow* window)

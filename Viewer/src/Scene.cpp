@@ -1,5 +1,7 @@
 #include "Scene.h"
 #include "MeshModel.h"
+
+#include <iostream>
 #include <string>
 
 Scene::Scene() :
@@ -8,27 +10,22 @@ Scene::Scene() :
 {
 
 }
-
 void Scene::AddModel(const std::shared_ptr<MeshModel>& model)
 {
 	models.push_back(model);
 }
-
 const int Scene::GetModelCount() const
 {
 	return models.size();
 }
-
 void Scene::AddCamera(const Camera& camera)
 {
 	cameras.push_back(camera);
 }
-
 const int Scene::GetCameraCount() const
 {
 	return cameras.size();
 }
-
 void Scene::SetActiveCameraIndex(int index)
 {
 	// implementation suggestion...
@@ -37,12 +34,10 @@ void Scene::SetActiveCameraIndex(int index)
 		activeCameraIndex = index;
 	}
 }
-
 const int Scene::GetActiveCameraIndex() const
 {
 	return activeCameraIndex;
 }
-
 void Scene::SetActiveModelIndex(int index)
 {
 	// implementation suggestion...
@@ -51,27 +46,22 @@ void Scene::SetActiveModelIndex(int index)
 		activeModelIndex = index;
 	}
 }
-
 const int Scene::GetActiveModelIndex() const
 {
 	return activeModelIndex;
 }
-
 std::shared_ptr<MeshModel> Scene::GetAciveModel()const {
 	return models.at(this->GetActiveModelIndex());
 }
-
 const Camera& Scene::GetActiveCamera()const {
 	return cameras.at(this->GetActiveCameraIndex());
 }
 void Scene::UpdateActiveCameraXRotate(const float x) {
 	cameras.at(this->GetActiveCameraIndex()).setXRotate(x);
 }
-
 float Scene::GetActiveCameraXRotate()const {
 	return cameras.at(activeCameraIndex).getXRotate();
 }
-
 float Scene::GetActiveCameraYRotate()const {
 	return cameras.at(activeCameraIndex).getYRotate();
 }
@@ -84,7 +74,6 @@ float Scene::GetActiveCameraZRotate()const {
 void Scene::UpdateActiveCameraZRotate(const float z) {
 	cameras.at(activeCameraIndex).setZRotate(z);
 }
-
 void Scene::ActiveCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up) {
 	cameras.at(activeCameraIndex).SetCameraLookAt(eye, at, up);
 }
@@ -100,4 +89,12 @@ void Scene::ActiveCameraSerPers(const float fovy,
 	const float _near,
 	const float _far) {
 	cameras.at(activeCameraIndex).SetPerspectiveProjection(fovy, aspect, _near, _far);
+}
+std::shared_ptr<MeshModel> Scene::GetModelIndex(const int index)const {
+	if (index < 0 || index >= this->models.size()) { std::cout << "WTF!" << std::endl; exit(1); }
+	return models.at(index);
+}
+const Camera& Scene::GetCameraIndex(const int index)const {
+	if (index <0|| index >= cameras.size()) { std::cout << "WTF!" << std::endl; exit(1); }
+	return cameras.at(index);
 }

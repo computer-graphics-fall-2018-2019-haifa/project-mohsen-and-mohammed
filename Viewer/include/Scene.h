@@ -36,8 +36,11 @@ public:
 	const int GetActiveModelIndex() const;
 
 	std::shared_ptr< MeshModel> GetAciveModel()const;
+	std::shared_ptr<MeshModel> GetModelIndex(const int index)const;
 
 	const Camera& GetActiveCamera()const;
+	const Camera& GetCameraIndex(const int index)const;
+
 	void UpdateActiveCameraXRotate(const float x);
 
 	float GetActiveCameraXRotate()const;

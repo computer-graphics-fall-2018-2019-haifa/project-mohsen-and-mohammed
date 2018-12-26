@@ -53,7 +53,10 @@ static float far_p = -5.0f;
 static float height = 100.0f;
 static float aspect_o = 2.0f;
 static float near_o = 5.0f;
-static float far_o = 5.0f;
+static float far_o = -5.0f;
+
+static bool printAllModels = false;
+static bool printAllCameras = false;
 
 static void UpdateLookAt(Scene& scene) {
 	scene.ActiveCameraLookAt(GetEye(), GetAt(), GetY());
@@ -61,22 +64,24 @@ static void UpdateLookAt(Scene& scene) {
 static void UpdateXRotate(Scene& scene) {
 	const float  dif = GetCamXRotate() - scene.GetActiveCameraXRotate();
 	if (dif == 0) return;
-	const glm::vec3 newEye = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), X)*Utils::HomCoordinats(GetEye()));
+	const glm::vec3 newEye = Utils::SwitchFromHom(glm::inverse(Utils::RotateOrigin(DEGREETORADIAN(dif), X))*Utils::HomCoordinats(GetEye()));
+	//const glm::vec3 newUp = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), X)*Utils::HomCoordinats(GetY()));
 	scene.ActiveCameraLookAt(newEye, GetAt(), GetY());
 	scene.UpdateActiveCameraXRotate(GetCamXRotate());
-	eye[0] = newEye.x;
-	eye[1] = newEye.y;
-	eye[2] = newEye.z;
+	eye[0] = newEye.x; //y[0] = newUp.x;
+	eye[1] = newEye.y;// y[1] = newUp.y;
+	eye[2] = newEye.z; //y[2] = newUp.z;
 }
 static void UpdateYRotate(Scene& scene) {
 	const float dif = GetCamYRotate() - scene.GetActiveCameraYRotate();
 	if (dif == 0) return;
 	const glm::vec3 newEye = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), Y)*Utils::HomCoordinats(GetEye()));
+	const glm::vec3 newUp = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), Y)*Utils::HomCoordinats(GetY()));
 	scene.ActiveCameraLookAt(newEye, GetAt(), GetY());
 	scene.UpdateActiveCameraYRotate(GetCamYRotate());
-	eye[0] = newEye.x;
-	eye[1] = newEye.y;
-	eye[2] = newEye.z;
+	eye[0] = newEye.x; y[0] = newUp.x;
+	eye[1] = newEye.y; y[1] = newUp.y;
+	eye[2] = newEye.z; y[2] = newUp.z;
 }
 static void UpdateZRotate(Scene& scene) {
 	const float dif = GetCamZRotate() - scene.GetActiveCameraZRotate();
@@ -105,7 +110,6 @@ static void UpdateActiveCamera(Scene& scene) {
 		UpdateOrthographic(scene);
 	}
 }
-
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
@@ -171,19 +175,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::End();
 	}
 
-
-	// 3. Show another simple window.
-	if (showAnotherWindow)
-	{
-		ImGui::Begin("Another Window", &showAnotherWindow);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-		ImGui::Text("Hello from another window!");
-		if (ImGui::Button("Close Me"))
-		{
-			showAnotherWindow = false;
-		}
-		ImGui::End();
-	}
-
 	// 4. Demonstrate creating a fullscreen menu bar and populating it.
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing;
@@ -204,6 +195,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 					else {
 					}
 
+				}
+				if (ImGui::MenuItem("Add camera...","CTRL+C")) {
+					scene.AddCamera(Camera(glm::vec4(0,0,0,1),glm::vec4(0,0,1,1),glm::vec4(0,1,0,1)));
 				}
 				ImGui::EndMenu();
 			}
@@ -252,6 +246,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 	}
 	if (showCameraWindow) {
 		ImGui::Begin("Camera Window");
+		if (ImGui::Button("focus active model")) {
+			if (scene.GetModelCount() > 0) {
+				std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
+				glm::mat4 modelT = activeModel->GetModelTransformation();
+				glm::mat4 worldT = activeModel->GetWorldTransformation();
+				glm::vec4 newAt = glm::transpose(worldT)*glm::transpose(modelT)*glm::vec4(0,0,0,1);
+				at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+			}
+		}
 		//camera zoom
 		ImGui::InputFloat("Zoom", &zoom);
 		//change look at
@@ -283,6 +286,24 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		}
 		ImGui::End();
 	}
+	if (showSeneWindow) {
+		ImGui::Begin("Scene Window");
+		if (ImGui::Button("Switch Camera")) {
+			if (scene.GetCameraCount() > 0) {
+				scene.SetActiveCameraIndex((scene.GetActiveCameraIndex() + 1) % scene.GetCameraCount());
+				ResetImGuiMenusCamera(scene.GetActiveCamera());
+			}
+		}
+		if (ImGui::Button("Switch active Model")) {
+			if (scene.GetModelCount() > 0){
+				scene.SetActiveModelIndex((scene.GetActiveModelIndex()+1)%scene.GetModelCount());
+				ResetImGuiMenusModel(scene.GetAciveModel());
+			}
+		}
+		ImGui::Checkbox("Print All Models", &printAllModels);
+		ImGui::Checkbox("Print All Cameras",&printAllCameras);
+		ImGui::End();
+	}
 	UpdateActiveCamera(scene);
 }
 bool getTemp() {
@@ -309,6 +330,75 @@ float GetCamYRotate() {
 float GetCamZRotate() {
 	return cameraRotateZ;
 }
-
-
-
+void ResetImGuiMenusModel() {
+	worldRotateX = 0.0f;
+	worldRotateY = 0.0f;
+	worldRotateZ = 0.0f;
+	rotateX = 0.0f;
+	rotateY = 0.0f;
+	rotateZ = 0.0f;
+	normalPerFace = false;
+	normalPerVertix = false;
+	boundingBox = false;
+	translate[0] = 0; translate[1] = 0; translate[2] = 0; 
+	WorldTranslate[0] = 0; WorldTranslate[1] = 0; WorldTranslate[2] = 0; 
+	scale[0] = 1; scale[1] = 1; scale[1] = 1; 
+}
+void ResetImGUiMenusCamera() {
+	eye[0] = 0; eye[1] = 0; eye[2] = 10;
+	at[0] = 0; at[1] = 0; at[2] = 0;
+	y[0] = 0; y[1] = 1; y[2] = 0;
+	cameraRotateX = 0.0f;
+	cameraRotateY = 0.0f;
+	cameraRotateZ = 0.0f;
+	fovy = 50.0f;
+	aspect_p = 2.5f;
+	near_p = 5.0f;
+	far_p = -5.0f;
+	height = 100.0f;
+	aspect_o = 2.0f;
+	near_o = 5.0f;
+	far_o = -5.0f;
+}
+void ResetImGuiMenusModel(std::shared_ptr<const MeshModel> model) {
+	worldRotateX = model->getWorldThetaX();
+	worldRotateY = model->getWorldThetaY();
+	worldRotateZ = model->getWorldThetaZ();
+	rotateX = model->getModelThetaX();
+	rotateY = model->getModelThetyaY();
+	rotateZ = model->getModelThetaZ();
+	normalPerFace = false;
+	normalPerVertix = false;
+	boundingBox = false;
+	glm::vec3 trans = model->getModelTranslate();
+	translate[0] = trans.x; translate[1] = trans.y; translate[2] = trans.z;
+	glm::vec3 wtrans = model->getWorldTranslate();
+	WorldTranslate[0] = wtrans.x; WorldTranslate[1] = wtrans.y; WorldTranslate[2] = wtrans.z;
+	glm::vec3 wscl = model->getModelScale();
+	scale[0] = wscl.x; scale[1] = wscl.y; scale[1] = wscl.z;
+}
+void ResetImGuiMenusCamera(const Camera& camera) {
+	glm::vec3 eye_ = camera.getEye();
+	eye[0] = eye_.x; eye[1] = eye_.y; eye[2] = eye_.z;
+	glm::vec3 at_ = camera.getAt();
+	at[0] = at_.x; at[1] = at_.y; at[2] = at_.z;
+	glm::vec3 y_ = camera.getY();
+	y[0] = y_.x; y[1] = y_.y; y[2] = y_.z;
+	cameraRotateX = camera.getXRotate();
+	cameraRotateY = camera.getYRotate();
+	cameraRotateZ = camera.getZRotate();
+	fovy = camera.getFovy();
+	aspect_p = camera.getAspectP();
+	near_p = camera.getNearP();
+	far_p = camera.getFarP();
+	height = camera.getHeight();
+	aspect_o = camera.getAspectO();
+	near_o = camera.getNearO();
+	far_o = camera.getFarO();
+}
+bool PrintAllModels_() {
+	return printAllModels;
+}
+bool PrintAllCameras_() {
+	return printAllCameras;
+}

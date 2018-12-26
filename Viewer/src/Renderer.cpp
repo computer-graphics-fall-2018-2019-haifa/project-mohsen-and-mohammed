@@ -85,10 +85,14 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
+	//print world frame
+	Renderer::PrintWorldFrame(scene);
+	if (PrintAllCameras_()) {
+		Renderer::PrintAllCameras(scene);
+	}
 	if (scene.GetModelCount() <= 0) return;
 	std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
 	Camera activeCamera = scene.GetActiveCamera();
-	//Renderer::UpdateViewTransform(scene);
 	Renderer::UpdateWorldTransform(scene);
 	glm::mat4 modelT = activeModel->GetModelTransformation();
 	glm::mat4 worldT = activeModel->GetWorldTransformation();
@@ -97,8 +101,7 @@ void Renderer::Render(const Scene& scene)
 	glm::mat4 VpT = Renderer::GetViewPortTramsform();
 	std::vector<glm::vec3> vertix;
 	glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
-	//print world frame
-	Renderer::PrintWorldFrame(scene);
+	//Renderer::PrintWorldFrame(scene);
 	//print model frame
 	Renderer::PrintModelFrame(scene);
 	//print model
@@ -115,6 +118,10 @@ void Renderer::Render(const Scene& scene)
 	if (DrawVertixNormal()) {
 		Renderer::PrintNormalPerVertix(activeModel, finalM);
 	}
+	if (PrintAllModels_()) {
+		Renderer::PrintAllModels(scene);
+	}
+	
 }
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
@@ -282,11 +289,7 @@ void Renderer::UpdateWorldTransform(const Scene& scene) const {
 	Renderer::UpdateModelRotation(scene);
 	Renderer::UpdateModelScale(scene);
 	Renderer::UpdateWorldRotation(scene);
-}/*
-void Renderer::UpdateViewTransform(const Scene& scene) const {
-	Renderer::UpdateCameraLookAt(scene);
-	Renderer::UpdateCameraRotate(scene);
-}**/
+}
 void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
 	if (model->GetFaceCount() <= 0) return;
 	for (int i = 0; i < model->GetFaceCount();i++) {
@@ -450,27 +453,33 @@ void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4
 		}
 		vertix.clear();
 	}
-}/**
-void Renderer::UpdateCameraRotate(const Scene& scene) const{
-	if (scene.GetCameraCount() <= 0) return;
+}
+void Renderer::PrintAllModels(const Scene& scene) {
+	if (scene.GetModelCount() <= 0) return;
 	Camera activeCamera = scene.GetActiveCamera();
-	activeCamera.SetCameraLookAt(GetEye(), GetAt(), GetY());
-	if (activeCamera.getXRotate()!= GetCamXRotate()) {
-		const float dif = -activeCamera.getXRotate() + GetCamXRotate();
-		glm::vec3 newEye = Utils::SwitchFromHom(glm::transpose(Utils::RotateOrigin(DEGREETORADIAN(dif), X))*Utils::HomCoordinats(GetEye()));
-		scene.UpdateActiveCameraXRotate(GetCamXRotate());
-		UpdateEye(newEye);
-		activeCamera.SetCameraLookAt(newEye, GetAt(), GetY());
-	}
-	else if (activeCamera.getYRotate()!=GetCamYRotate()) {
-
-	}
-	else if (activeCamera.getZRotate()!=GetCamZRotate()) {
-
+	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	glm::mat4 VpT = Renderer::GetViewPortTramsform();
+	for (int i = 0; i < scene.GetModelCount(); i++) {
+		std::shared_ptr<const MeshModel> model = scene.GetModelIndex(i);
+		glm::mat4 modelT = model->GetModelTransformation();
+		glm::mat4 worldT = model->GetWorldTransformation();
+		glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
+		Renderer::PrintModel(model, finalM);
 	}
 }
-void Renderer::UpdateCameraLookAt(const Scene& scene)const {
+void Renderer::PrintAllCameras(const Scene& scene) {
 	if (scene.GetCameraCount() <= 0) return;
-	Camera activeCam = scene.GetActiveCamera();
-	activeCam.SetCameraLookAt(GetEye(),GetAt(),GetY());
-}*/
+	Camera activeCamera = scene.GetActiveCamera();
+	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	glm::mat4 pT = activeCamera.GetProjectionTransform();
+	glm::mat4 VpT = Renderer::GetViewPortTramsform();
+	for (int i = 0; i < scene.GetCameraCount(); i++) {
+		if (i == scene.GetActiveCameraIndex()) continue;
+		Camera cam = scene.GetCameraIndex(i);
+		std::shared_ptr<MeshModel> camModel = std::make_shared<MeshModel>(Utils::getCameraModel());
+		glm::mat4 finalM= glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(2, 2, -2)))*glm::transpose(cam.GetInverseViewTranform())
+			;
+		Renderer::PrintModel(camModel, finalM);
+	}
+}

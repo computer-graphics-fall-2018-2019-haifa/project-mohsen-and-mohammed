@@ -28,7 +28,6 @@ private:
 	void createOpenGLBuffer();
 	void initOpenGLRendering();
 	void UpdateWorldTransform(const Scene& scene) const;
-	void UpdateViewTransform(const Scene& scene) const;
 	void PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 matrix);
 	void PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4 matrix);
 	void PrintNormalPerVertix(std::shared_ptr<const MeshModel> model, glm::mat4 matrix);
@@ -46,8 +45,8 @@ private:
 	void PrintWorldFrame(const Scene& scene);
 	void PrintModelFrame(const Scene& scene);
 	void PrintModel(std::shared_ptr<const MeshModel> model,glm::mat4 matrix);
-	void UpdateCameraRotate(const Scene& scene)const;
-	void UpdateCameraLookAt(const Scene& scene)const;
+	void PrintAllModels(const Scene& scene);
+	void PrintAllCameras(const Scene& scene);
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();
