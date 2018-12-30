@@ -71,6 +71,7 @@ public:
 	
 	bool CanBeSeen(const std::vector<glm::vec4>&) const;
 	const glm::mat4& GetInverseViewTranform()const;
+	const glm::mat4& GetViewTransform()const;
 	const glm::mat4& GetProjectionTransform()const;
 
 	float getXRotate()const;
@@ -98,4 +99,3 @@ public:
 	float getZoom()const;
 
 };
-

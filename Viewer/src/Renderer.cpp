@@ -478,7 +478,8 @@ void Renderer::PrintAllCameras(const Scene& scene) {
 		if (i == scene.GetActiveCameraIndex()) continue;
 		Camera cam = scene.GetCameraIndex(i);
 		std::shared_ptr<MeshModel> camModel = std::make_shared<MeshModel>(Utils::getCameraModel());
-		glm::mat4 finalM= glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(2, 2, -2)))*glm::transpose(cam.GetInverseViewTranform())
+		glm::mat4 finalM= glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(2, 2, 2)))*glm::transpose(glm::inverse(cam.GetInverseViewTranform()))
+			*glm::transpose(Utils::RotateOrigin(DEGREETORADIAN(180),Y))
 			;
 		Renderer::PrintModel(camModel, finalM);
 	}

@@ -23,7 +23,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::vec3 z = Utils::NormalizeVector(eye-at);
 	glm::vec3 x = Utils::NormalizeVector(Utils::crossProduct(up, z));
 	glm::vec3 y = Utils::NormalizeVector(Utils::crossProduct(z, x));
-	this->InverseViewTransformation = glm::mat4(x.x,x.y,x.z,0, y.x,y.y,y.z,0, z.x,z.y,z.z,0, 0,0,0,1)*Utils::Translate(glm::vec3(-1,-1,-1)*eye);
+	this->InverseViewTransformation = Utils::Translate(glm::vec3(-1, -1, -1)*eye)*glm::mat4(x.x,x.y,x.z,0, y.x,y.y,y.z,0, z.x,z.y,z.z,0, 0,0,0,1);
 	this->viewTransformation = glm::inverse(this->InverseViewTransformation);
 }
 void Camera::SetOrthographicProjection(
@@ -155,4 +155,7 @@ float Camera::getHeight()const {
 }
 float Camera::getZoom()const {
 	return _zoom;
+}
+const glm::mat4& Camera::GetViewTransform()const {
+	return viewTransformation;
 }
