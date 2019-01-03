@@ -39,6 +39,12 @@ public:
 	static void floatPresice(glm::vec3&);
 	static void floatPresice(glm::vec4&);
 	static MeshModel getCameraModel();
+	static float FindXLine(const glm::vec2& p1, const glm::vec2& p2, const float yy);//this method compute x coordinate of the a point with the given y coordinate in the line that
+	//connect p1 and p2
+	static float FindYLine(const glm::vec2& p1, const glm::vec2& p2, const float x);
+	static bool DoesContain(const glm::vec2& point,const glm::vec2& v1,const glm::vec2& v2,const glm::vec2& v3);
+	//this method returns true if and only if " point " is inside the trainagle v1v2v3
+	static float Area(const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3);//calculates area of trainale
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

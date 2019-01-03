@@ -14,6 +14,18 @@
 #define DEGREETORADIAN(theta)  (2 * theta / 360.0f*M_PI)
 #define WORLDFRAMEAXIS 30.0f
 #define MODELFRAMAXIS 15.0f
+#define MAX(x,y) (x>=y)?x:y
+#define MIN(x,y) (x<y)?x:y
+static float max(float a, float b, float c) {
+	if (a >= b && a >= c) return a;
+	else if (b >= a && b >= c) return b;
+	else return c;
+}
+static float min(float a, float b, float c) {
+	if (a <= b && a <= c) return a;
+	else if (b <= a && b <= c) return b;
+	else return c;
+}
 static void printq(const glm::vec3& v) {
 	std::cout << v.x << " " << v.y << " " << v.z << " " << "SDF" << std::endl;
 }
@@ -85,6 +97,8 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
+	//Renderer::PrintTraingle(glm::vec2(0, 750), glm::vec2(750, 750), glm::vec2(750, 200));
+	
 	//print world frame
 	Renderer::PrintWorldFrame(scene);
 	if (PrintAllCameras_()) {
@@ -121,7 +135,6 @@ void Renderer::Render(const Scene& scene)
 	if (PrintAllModels_()) {
 		Renderer::PrintAllModels(scene);
 	}
-	
 }
 
 void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
@@ -278,11 +291,7 @@ void Renderer::SwapBuffers()
 	// Finally renders the data.
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
-void Renderer::drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color)  {
-	Renderer::PrintLineBresenham(x1, y1, x2, y2, color);
-	Renderer::PrintLineBresenham(x2, y2, x3, y3,color);
-	Renderer::PrintLineBresenham(x3, y3, x1, y1, color);
-}
+
 void Renderer::UpdateWorldTransform(const Scene& scene) const {
 	Renderer::UpdateModelTranslate(scene);
 	Renderer::UpdateWorldTranslate(scene);
@@ -448,9 +457,22 @@ void Renderer::UpdateModelRotation(const Scene& scene) const {
 void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform) {
 	for (int j = 0; j < activeModel->GetFaceCount(); j++) {
 		std::vector<glm::vec3> vertix = activeModel->GetVertices(j);
-		for (int i = 0; i < 3; i++) {
-			Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, GetMeshColor());
-		}
+	//for (int i = 0; i < 3; i++) {
+			//Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, GetMeshColor());
+			Renderer::PrintTraingle(vertix, transform);
+			//const glm::vec3 p1 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(0)));
+			//const glm::vec3 p2 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(1)));
+			//const glm::vec3 p3 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(2)));
+			/*if (p1.x<activeModel->getMinXAfterTranformX(transform) ) {
+				std::cout << "out of range!" << std::endl;
+			}
+			if (p2.x<activeModel->getMinXAfterTranformX(transform) ) {
+				std::cout << "out of range!" << std::endl;
+			}
+			if (p3.x<activeModel->getMinXAfterTranformX(transform) ) {
+				std::cout << "out of range!" << std::endl;
+			}*/
+		//}
 		vertix.clear();
 	}
 }
@@ -484,3 +506,29 @@ void Renderer::PrintAllCameras(const Scene& scene) {
 		Renderer::PrintModel(camModel, finalM);
 	}
 }
+void Renderer::PrintTraingle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3) {
+	const int xMax = max(p1.x, p2.x, p3.x), yMax = max(p1.y,p2.y,p3.y);
+	const int xMin = min(p1.x, p2.x, p3.x), yMin = min(p1.y,p2.y,p3.y);
+	if (xMax == xMin || yMax == yMin) {return; }
+	for (int i = xMin; i <= xMax; i++) {
+		for (int j = yMin; j <= yMax;j++) {
+			if (Utils::DoesContain(glm::vec2(i, j), p1, p2, p3))
+				Renderer::putPixel(i+0.5f,j+0.5f,GetMeshColor());
+		}
+	}
+}
+void Renderer::PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform) {
+	if (vertix.size() != 3) { return; }
+	const glm::vec4 p1 =Utils::HomCoordinats( transform*Utils::HomCoordinats(vertix.at(0)));
+	const glm::vec4 p2 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(1)));
+	const glm::vec4 p3 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(2)));
+	const glm::vec2 _p1(p1.x, p1.y);
+	//std::cout << "1 " << p1.x << std::endl;
+	const glm::vec2 _p2(p2.x, p2.y);
+	//std::cout << "2 " << p2.x << std::endl;
+	const glm::vec2 _p3(p3.x, p3.y);
+	//std::cout << "3 " << p3.x << std::endl;
+	Renderer::PrintTraingle(_p1, _p2,_p3);
+}
+
+

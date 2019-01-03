@@ -4,7 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#define MAX(x,y) (x>=y)?x:y
+#define MIN(x,y) (x<y)?x:y
 glm::vec3 Utils::Vec3fFromStream(std::istream& issLine)
 {
 	float x, y, z;
@@ -233,3 +234,23 @@ glm::vec4 Utils::Normalize(const glm::vec4& v) {
 MeshModel Utils::getCameraModel() {
 	return Utils::LoadMeshModel("C:\\Users\\USER\\Documents\\GitHub\\project-mohsen-and-mohammed\\Data\\camera.obj");
 }
+float Utils::FindXLine(const glm::vec2& p1, const glm::vec2& p2, const float yy) {
+	if (p1.y == p2.y) {  throw 0; }
+	if (p1.x == p2.x) { return p1.x; }
+	return /*0;*/ (-1 * (p1.y - yy)*(p1.x - p2.x) / (p1.y - p2.y)) + p1.x;
+}
+float Utils::FindYLine(const glm::vec2& p1, const glm::vec2& p2, const float x) {
+	if (p1.x == p2.x) { throw 0; }
+	if (p1.y == p2.y) { return p1.y; }
+	return /*0;*/ (-1 * (p1.x - x)*(p1.y - p2.y) / (p1.x - p2.x)) + p1.y;
+}
+float Utils::Area(const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
+	return ((v1.x*(v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y)) / 2.0f);
+}
+bool Utils::DoesContain(const glm::vec2& p, const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
+	float l1 = (p.x - v1.x)*(v3.y - v1.y) - (v3.x - v1.x)*(p.y - v1.y),
+		l2 = (p.x - v2.x)*(v1.y - v2.y) - (v1.x - v2.x)*(p.y - v2.y),
+		l3 = (p.x - v3.x)*(v2.y - v3.y) - (v2.x - v3.x)*(p.y - v3.y);
+	return (l1 > 0 && l2 > 0 && l3 > 0) || (l1 < 0 && l2 < 0 && l3 < 0);
+}
+

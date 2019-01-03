@@ -35,8 +35,7 @@ private:
 
 	glm::vec3 modelTranslate;
 	glm::vec3 worldTranslate;
-	float getMinXAfterTranformX(const glm::mat4& Transform)const;
-	float getMaxAfterTransformX(const glm::mat4& Tranform)const;
+	
 public:
 	MeshModel(const std::vector<Face>& faces, const std::vector<glm::vec3>& vertices, const std::vector<glm::vec3>& normals, const std::string& modelName = "");
 	virtual ~MeshModel();
@@ -105,4 +104,7 @@ public:
 
 	glm::vec3 CalculateInModelFrame(const glm::vec3&)const;
 	glm::vec3 CalculateInModelFrameDirection(const glm::vec3&)const;
+
+	float getMinXAfterTranformX(const glm::mat4& Transform)const;
+	float getMaxAfterTransformX(const glm::mat4& Tranform)const;
 };

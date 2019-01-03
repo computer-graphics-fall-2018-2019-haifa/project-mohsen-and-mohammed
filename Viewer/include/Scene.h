@@ -49,6 +49,7 @@ public:
 	void UpdateActiveCameraZRotate(const float x);
 	float GetActiveCameraZRotate()const;
 
+	void UpdateActiveCameraTilt(const float x, AXIS a);
 	void ActiveCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const glm::vec3& up);
 
 	void ActiveCamerSetOrth(const float height,

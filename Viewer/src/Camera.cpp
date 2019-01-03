@@ -8,7 +8,7 @@
 
 Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	_zoom(1.0),_height(0.0f),_aspectRatiop(0.0f), _aspectRatioo(0.0f), _fovy(0.0f),_nearo(0.0f),_faro(0.0f),
-	_nearp(0.0f),_farp(0.0f),rotateX(0.0f),rotateY(0.0f),rotateZ(0.0f),eye(glm::vec4(0))
+	_nearp(0.0f),_farp(0.0f),rotateX(0.0f),rotateY(0.0f),tiltX(0.0f),tiltY(0.0f),tiltZ(0),rotateZ(0.0f),eye(glm::vec4(0))
 	,at(glm::vec4(0)),y(glm::vec4(0))
 {
 	this->eye = eye; this->at = at; this->y = y;
@@ -93,7 +93,7 @@ const glm::mat4& Camera::GetInverseViewTranform()const {
 const glm::mat4& Camera::GetProjectionTransform()const {
 	return this->projectionTransformation;
 }
-float Camera::getXRotate()const {
+const float& Camera::getXRotate()const {
 	return rotateX;
 }
 void Camera::setXRotate(const float t) {
@@ -158,4 +158,23 @@ float Camera::getZoom()const {
 }
 const glm::mat4& Camera::GetViewTransform()const {
 	return viewTransformation;
+}
+float Camera::getTiltX()const {
+	return tiltX;
+}
+float Camera::getTiltY()const {
+	return tiltY;
+}
+float Camera::getTiltZ()const {
+	return tiltZ;
+}
+
+void Camera::setTiltX(const float t) {
+	tiltX = t;
+}
+void Camera::setTiltY(const float t) {
+	tiltY = t;
+}
+void Camera::setTiltZ(const float t) {
+	tiltZ = t;
 }

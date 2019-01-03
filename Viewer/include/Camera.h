@@ -34,6 +34,10 @@ private:
 	float rotateY;
 	float rotateZ;
 
+	float tiltX;
+	float tiltY;
+	float tiltZ;
+
 	glm::vec4 eye;
 	glm::vec4 at;
 	glm::vec4 y;
@@ -74,7 +78,7 @@ public:
 	const glm::mat4& GetViewTransform()const;
 	const glm::mat4& GetProjectionTransform()const;
 
-	float getXRotate()const;
+	const float& getXRotate()const;
 	void setXRotate(const float t);
 	float getYRotate()const;
 	void setYRotate(const float t);
@@ -97,5 +101,11 @@ public:
 	float getAspectP()const;
 	float getHeight()const;
 	float getZoom()const;
+	float getTiltX()const;
+	float getTiltY()const;
+	float getTiltZ()const;
 
+	void setTiltX(const float tilt);
+	void setTiltY(const float tilt);
+	void setTiltZ(const float tilt);
 };

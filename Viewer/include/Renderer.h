@@ -31,7 +31,6 @@ private:
 	void PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 matrix);
 	void PrintBoundingBox(std::shared_ptr<const MeshModel>model, glm::mat4 matrix);
 	void PrintNormalPerVertix(std::shared_ptr<const MeshModel> model, glm::mat4 matrix);
-	void drawTraingle(float x1, float y1, float x2, float y2, float x3, float y3, const glm::vec3& color);
 	void PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& color, int toFlip = 0, int fllag = 0);
 	void PrintLineBresenham(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color=glm::vec3(0,0,0));
 	//void PrintLine(const glm::vec3& point, const glm::vec3& direction, glm::mat4 transform);
@@ -47,6 +46,8 @@ private:
 	void PrintModel(std::shared_ptr<const MeshModel> model,glm::mat4 matrix);
 	void PrintAllModels(const Scene& scene);
 	void PrintAllCameras(const Scene& scene);
+	void PrintTraingle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3);
+	void PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform);
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();

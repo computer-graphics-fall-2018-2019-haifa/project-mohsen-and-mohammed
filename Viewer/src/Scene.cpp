@@ -98,3 +98,13 @@ const Camera& Scene::GetCameraIndex(const int index)const {
 	if (index <0|| index >= cameras.size()) { std::cout << "WTF!" << std::endl; exit(1); }
 	return cameras.at(index);
 }
+
+
+void Scene::UpdateActiveCameraTilt(const float x, AXIS a) {
+	if (a == X)
+		cameras.at(this->GetActiveCameraIndex()).setTiltX(x);
+	else if (a == Y)
+		cameras.at(this->GetActiveCameraIndex()).setTiltY(x);
+	else if (a == Z)
+		cameras.at(this->GetActiveCameraIndex()).setTiltZ(x);
+}

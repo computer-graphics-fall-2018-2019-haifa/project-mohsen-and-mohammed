@@ -16,9 +16,9 @@
 #define DEGREETORADIAN(theta)  (2 * theta / 360.0f*M_PI)
 bool showDemoWindow = false;
 bool showAnotherWindow = true;
-bool showModelWindow = false;
-bool showSeneWindow = false;
-bool showCameraWindow = false;
+bool showModelWindow = true;
+bool showSeneWindow = true;
+bool showCameraWindow = true;
 bool perspective = false;
 bool orthographic = !perspective;
 glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
@@ -58,6 +58,76 @@ static float far_o = -5.0f;
 static bool printAllModels = false;
 static bool printAllCameras = false;
 
+static float tiltX = 0.0;
+static float tiltY = 0.0;
+static float tiltZ = 0.0;
+/*
+static void UpdateTiltX(Scene& scene) {
+	Camera cam = scene.GetActiveCamera();
+	const float dif = tiltX - cam.getTiltX();
+	if (dif == 0) return;
+	if (tiltX > -90 && tiltX < 90) {
+		//the distance of the camera form X/Y axis is Z cordinate of eye vector
+		//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
+		const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().z;
+		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, 0, 0);
+		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+		scene.UpdateActiveCameraTilt(tiltX, X);
+		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+	}
+	else if (tiltX == 90) {
+		//if we tilt in 90 degrees the z axis of camera frame must be parallel to X axis
+		const glm::vec3 newAt = cam.getEye() + glm::vec3(1, 0, 0);
+		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+		scene.UpdateActiveCameraTilt(tiltX, X);
+		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+	}
+	else if (tiltX == -90) {
+		const glm::vec3 newAt = cam.getEye() + glm::vec3(-1, 0, 0);
+		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+		scene.UpdateActiveCameraTilt(tiltX, X);
+		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+	}
+	else if (tiltX>90) {
+		const float d = tanf(DEGREETORADIAN(dif-90))*cam.getEye().z;
+		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, 2*GetEye().z, 0);
+		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+		scene.UpdateActiveCameraTilt(tiltX, X);
+		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+	}
+	else if (tiltX < -90) {
+		const float d = tanf(DEGREETORADIAN(90 + dif))*cam.getEye().z;
+		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, GetEye().z, 0);
+		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+		scene.UpdateActiveCameraTilt(tiltX, X);
+		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+	}
+}
+	
+static void UpdateTiltY(Scene& scene) {
+	Camera cam = scene.GetActiveCamera();
+	const float dif = tiltY - cam.getTiltY();
+	if (dif == 0) return;
+	//the distance of the camera form X/Y axis is Z cordinate of eye vector
+	//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
+	const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().z;
+	const glm::vec3 newAt = cam.getAt() + glm::vec3(0, d, 0);
+	scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+	scene.UpdateActiveCameraTilt(tiltY, Y);
+	at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+}
+static void UpdateTiltZ(Scene& scene) {
+	Camera cam = scene.GetActiveCamera();
+	const float dif = tiltZ - cam.getTiltZ();
+	if (dif == 0) return;
+	//the distance of the camera form Z axis is X cordinate of eye vector
+	//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
+	const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().x;
+	const glm::vec3 newAt = cam.getAt() + glm::vec3(0, 0, d);
+	scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
+	scene.UpdateActiveCameraTilt(tiltZ, Z);
+	at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
+}*/
 static void UpdateLookAt(Scene& scene) {
 	scene.ActiveCameraLookAt(GetEye(), GetAt(), GetY());
 }
@@ -103,6 +173,9 @@ static void UpdateActiveCamera(Scene& scene) {
 	UpdateXRotate(scene);
 	UpdateYRotate(scene);
 	UpdateZRotate(scene);
+	//UpdateTiltX(scene);
+	//UpdateTiltY(scene);
+	//UpdateTiltZ(scene);
 	if (perspective) {
 		UpdatePerspective(scene);
 	}
@@ -155,6 +228,7 @@ bool DrawBoundingBox() {
 }
 void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 {
+	Camera cam = scene.GetActiveCamera();
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow)
 	{
@@ -167,7 +241,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		static int counter = 0;
 
 		ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
-		ImGui::Text("Muhammad && Mohsen");               // Display some text (you can use a format strings too)
+		//ImGui::Text("Muhammad && Mohsen");               // Display some text (you can use a format strings too)
 		ImGui::Checkbox("Scene Window", &showSeneWindow);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Model Window", &showModelWindow);
 		ImGui::Checkbox("Camera Window", &showCameraWindow);
@@ -262,7 +336,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::InputFloat3("eye", eye);
 		ImGui::InputFloat3("at", at);
 		ImGui::InputFloat3("y axis", y);
+		//camera tilt
+	/*	ImGui::Text("Camera Tilt");
+		ImGui::InputFloat("Camera X Tilt", &tiltX);
+		ImGui::SliderFloat("Camera Y Tilt", &tiltY, -360.0f, 360.0f);
+		ImGui::SliderFloat("Camera Z Tilt", &tiltZ, -360.0f, 360.0f);*/
 		//camera rotations
+		ImGui::Text("Camera Rotations");
 		ImGui::SliderFloat("Camera X Rotate", &cameraRotateX, 0.0f, 360.0f);
 		ImGui::SliderFloat("Camera Y Rotate", &cameraRotateY, 0.0f, 360.0f);
 		ImGui::SliderFloat("Camera Z Rotate", &cameraRotateZ, 0.0f, 360.0f);
@@ -304,7 +384,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Checkbox("Print All Cameras",&printAllCameras);
 		ImGui::End();
 	}
-	UpdateActiveCamera(scene);
+	//UpdateActiveCamera(scene);
 }
 bool getTemp() {
 	return temp;
@@ -359,6 +439,9 @@ void ResetImGUiMenusCamera() {
 	aspect_o = 2.0f;
 	near_o = 5.0f;
 	far_o = -5.0f;
+	//tiltX = 0.0f;
+	//tiltY = 0.0f;
+	// tiltZ = 0.0f;
 }
 void ResetImGuiMenusModel(std::shared_ptr<const MeshModel> model) {
 	worldRotateX = model->getWorldThetaX();
@@ -395,6 +478,9 @@ void ResetImGuiMenusCamera(const Camera& camera) {
 	aspect_o = camera.getAspectO();
 	near_o = camera.getNearO();
 	far_o = camera.getFarO();
+	//tiltX = camera.getTiltX();
+	//tiltY = camera.getTiltY();
+	//tiltZ = camera.getTiltZ();
 }
 bool PrintAllModels_() {
 	return printAllModels;

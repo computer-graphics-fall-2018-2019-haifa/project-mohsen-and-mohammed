@@ -28,7 +28,7 @@ int main(int argc, char ** argv)
 {
 	// Create GLFW window
 	int windowWidth = 1280, windowHeight = 720;
-	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer - /*Muhammad &&*/ Mohsen");
+	GLFWwindow* window = SetupGlfwWindow(windowWidth, windowHeight, "Mesh Viewer -  Mohsen");
 	if (!window)
 	{
 		return 1;
@@ -44,16 +44,13 @@ int main(int argc, char ** argv)
 	// Create the renderer and the scene
 	Renderer renderer = Renderer(frameBufferWidth, frameBufferHeight);
 	Scene scene = Scene();
-	//Camera newC = scene.GetActiveCamera();
 	Camera newC(glm::vec4(0, 0, 10, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, 1, 0, 1));
 	Camera newC1(glm::vec4(10, 10, 10, 1), glm::vec4(0, 0, 0, 1), glm::vec4(0, 1, 0, 1));
 	newC1.SetOrthographicProjection(100, 2, 5, -5);
-	//newC.SetPerspectiveProjection(3,5.0f,-5,5);
 	newC.SetOrthographicProjection(100,2,5,-5);
 	scene.AddCamera(newC);
 	scene.AddCamera(newC1);
 	scene.SetActiveCameraIndex(1);
-	std::cout << "1-" << scene.GetActiveCamera().getXRotate() << std::endl;
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 
