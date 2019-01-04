@@ -20,6 +20,7 @@ private:
 	int viewportY;
 
 	void putPixel(int x, int y, const glm::vec3& color);
+	void putZ(int x, int y,  float z);
 	void createBuffers(int viewportWidth, int viewportHeight);
 
 	GLuint glScreenTex;
@@ -40,14 +41,15 @@ private:
 	void UpdateModelTranslate(const Scene& scene)const;
 	void UpdateWorldTranslate(const Scene& scene)const;
 	void UpdateWorldRotation(const Scene& scene)const;
+	void UpdateModelColor(const Scene& scene)const;
 	void PrintFrame(const float length,const glm::mat4 matrix);
 	void PrintWorldFrame(const Scene& scene);
 	void PrintModelFrame(const Scene& scene);
-	void PrintModel(std::shared_ptr<const MeshModel> model,glm::mat4 matrix);
+	void PrintModel(std::shared_ptr<const MeshModel> model,glm::mat4 matrix,const glm::vec3& col);
 	void PrintAllModels(const Scene& scene);
 	void PrintAllCameras(const Scene& scene);
-	void PrintTraingle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3);
-	void PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform);
+	void PrintTraingle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& col);
+	void PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform, const glm::vec3& col);
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();

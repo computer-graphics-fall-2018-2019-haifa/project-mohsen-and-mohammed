@@ -459,6 +459,10 @@ void ResetImGuiMenusModel(std::shared_ptr<const MeshModel> model) {
 	WorldTranslate[0] = wtrans.x; WorldTranslate[1] = wtrans.y; WorldTranslate[2] = wtrans.z;
 	glm::vec3 wscl = model->getModelScale();
 	scale[0] = wscl.x; scale[1] = wscl.y; scale[1] = wscl.z;
+	glm::vec4 mCol = model->GetColor();
+	meshColor.x = mCol.x;
+	meshColor.y = mCol.y;
+	meshColor.z = mCol.z;
 }
 void ResetImGuiMenusCamera(const Camera& camera) {
 	glm::vec3 eye_ = camera.getEye();

@@ -11,6 +11,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 #define INDEX(width,x,y,c) ((x)+(y)*(width))*3+(c)
+#define ZINDEX(width,x,y) ((x)+(y)*(width))
 #define DEGREETORADIAN(theta)  (2 * theta / 360.0f*M_PI)
 #define WORLDFRAMEAXIS 30.0f
 #define MODELFRAMAXIS 15.0f
@@ -57,6 +58,12 @@ void Renderer::putPixel(int i, int j, const glm::vec3& color)
 	//colorBuffer[INDEX(viewportWidth, i, j, 2)] = 0.0f;
 }
 
+void Renderer::putZ(int i, int j, float z) {
+	if (i < 0) return; if (i >= viewportWidth) return;
+	if (j < 0) return; if (j >= viewportHeight) return;
+	zBuffer[ZINDEX(viewportWidth, i, j)] = z;
+}
+
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 {
 	if (colorBuffer)
@@ -70,6 +77,19 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 		for (int y = 0; y < viewportHeight; y++)
 		{
 			putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f));
+		}
+	}
+
+	if (zBuffer) {
+		delete[] zBuffer;
+	}
+
+	zBuffer= new float[ viewportWidth * viewportHeight];
+	for (int x = 0; x < viewportWidth; x++)
+	{
+		for (int y = 0; y < viewportHeight; y++)
+		{
+			zBuffer[ZINDEX(viewportWidth,x,y)] = 1.0f;
 		}
 	}
 }
@@ -119,7 +139,8 @@ void Renderer::Render(const Scene& scene)
 	//print model frame
 	Renderer::PrintModelFrame(scene);
 	//print model
-	Renderer::PrintModel(activeModel, finalM);
+	glm::vec4 col = activeModel->GetColor();
+	Renderer::PrintModel(activeModel, finalM,glm::vec3(col.x,col.y,col.z));
 	//print normal per face
 	if (DrawFaceNormal()) {
 		Renderer::PrintNormalPerFace(activeModel, finalM);
@@ -298,6 +319,7 @@ void Renderer::UpdateWorldTransform(const Scene& scene) const {
 	Renderer::UpdateModelRotation(scene);
 	Renderer::UpdateModelScale(scene);
 	Renderer::UpdateWorldRotation(scene);
+	Renderer::UpdateModelColor(scene);
 }
 void Renderer::PrintNormalPerFace(std::shared_ptr<const MeshModel> model, glm::mat4 mat) {
 	if (model->GetFaceCount() <= 0) return;
@@ -454,12 +476,17 @@ void Renderer::UpdateModelRotation(const Scene& scene) const {
 		activeModel->SetModelTransformation(activeModel->GetModelTransformation()*Utils::RotateOrigin(DEGREETORADIAN(dif), Z));
 	}
 }
-void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform) {
+void Renderer::UpdateModelColor(const Scene& scene)const {
+	std::shared_ptr<MeshModel> activeModel = scene.GetAciveModel();
+	const glm::vec3& col = GetMeshColor();
+	activeModel->SetColor(glm::vec4(col.x,col.y,col.z,1));
+}
+void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform,const glm::vec3& col) {
 	for (int j = 0; j < activeModel->GetFaceCount(); j++) {
 		std::vector<glm::vec3> vertix = activeModel->GetVertices(j);
 	//for (int i = 0; i < 3; i++) {
 			//Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, GetMeshColor());
-			Renderer::PrintTraingle(vertix, transform);
+			Renderer::PrintTraingle(vertix, transform,col);
 			//const glm::vec3 p1 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(0)));
 			//const glm::vec3 p2 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(1)));
 			//const glm::vec3 p3 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(2)));
@@ -487,7 +514,8 @@ void Renderer::PrintAllModels(const Scene& scene) {
 		glm::mat4 modelT = model->GetModelTransformation();
 		glm::mat4 worldT = model->GetWorldTransformation();
 		glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
-		Renderer::PrintModel(model, finalM);
+		glm::vec4 col = model->GetColor();
+		Renderer::PrintModel(model, finalM,glm::vec3(col.x,col.y,col.z));
 	}
 }
 void Renderer::PrintAllCameras(const Scene& scene) {
@@ -503,32 +531,36 @@ void Renderer::PrintAllCameras(const Scene& scene) {
 		glm::mat4 finalM= glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(Utils::Scale(glm::vec3(2, 2, 2)))*glm::transpose(glm::inverse(cam.GetInverseViewTranform()))
 			*glm::transpose(Utils::RotateOrigin(DEGREETORADIAN(180),Y))
 			;
-		Renderer::PrintModel(camModel, finalM);
+		Renderer::PrintModel(camModel, finalM,glm::vec3(0.25,0.25,0.25));
 	}
 }
-void Renderer::PrintTraingle(const glm::vec2& p1, const glm::vec2& p2, const glm::vec2& p3) {
+void Renderer::PrintTraingle(const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,const glm::vec3& col) {
 	const int xMax = max(p1.x, p2.x, p3.x), yMax = max(p1.y,p2.y,p3.y);
 	const int xMin = min(p1.x, p2.x, p3.x), yMin = min(p1.y,p2.y,p3.y);
 	if (xMax == xMin || yMax == yMin) {return; }
 	for (int i = xMin; i <= xMax; i++) {
 		for (int j = yMin; j <= yMax;j++) {
-			if (Utils::DoesContain(glm::vec2(i, j), p1, p2, p3))
-				Renderer::putPixel(i+0.5f,j+0.5f,GetMeshColor());
+			if (Utils::DoesContain(glm::vec2(i, j), glm::vec2(p1.x, p1.y), glm::vec2(p2.x, p2.y), glm::vec2(p3.x, p3.y))) {
+				float z = Utils::ZInterpolation(i,j,p1,p2,p3);
+				if (z < zBuffer[ZINDEX(viewportHeight, i, j)]) {
+					Renderer::putZ(i,j,z);
+					Renderer::putPixel(i + 0.5f, j + 0.5f, col);
+				}
+			}
+				
 		}
 	}
 }
-void Renderer::PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform) {
+void Renderer::PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform,const glm::vec3& col) {
 	if (vertix.size() != 3) { return; }
 	const glm::vec4 p1 =Utils::HomCoordinats( transform*Utils::HomCoordinats(vertix.at(0)));
 	const glm::vec4 p2 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(1)));
 	const glm::vec4 p3 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(2)));
-	const glm::vec2 _p1(p1.x, p1.y);
-	//std::cout << "1 " << p1.x << std::endl;
-	const glm::vec2 _p2(p2.x, p2.y);
-	//std::cout << "2 " << p2.x << std::endl;
-	const glm::vec2 _p3(p3.x, p3.y);
-	//std::cout << "3 " << p3.x << std::endl;
-	Renderer::PrintTraingle(_p1, _p2,_p3);
+
+	const glm::vec3 _p1(p1.x, p1.y,p1.z);
+	const glm::vec3 _p2(p2.x, p2.y,p1.z);
+	const glm::vec3 _p3(p3.x, p3.y,p1.z);
+	Renderer::PrintTraingle(_p1, _p2,_p3,col);
 }
 
 
