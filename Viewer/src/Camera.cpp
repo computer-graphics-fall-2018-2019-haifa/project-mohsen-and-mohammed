@@ -70,7 +70,7 @@ bool Camera::CanBeSeen(const std::vector<glm::vec4>& traingles) const {
 	return flag;
 }
 glm::mat4 Camera::calculateOrthProjectionMatrix(const float height, const float aspectRatio, const float near, const float far) const {
-	return Utils::Scale(glm::vec3((2.0f) / (aspectRatio*height), (2.0f) / (height), (2.0f) / (fabs(far - near))));
+	return Utils::Scale(glm::vec3((2.0f) / (aspectRatio*height), (2.0f) / (height), (2.0f) / (/*fabs*/(near - far))));
 }
 glm::mat4 Camera::calculatePersProjetionMatrix(const float fovy, const float aspect, const float near, const float far)const {
 	const float fovyR = RADIAN(fovy);//fovy in radians

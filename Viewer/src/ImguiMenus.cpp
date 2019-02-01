@@ -38,7 +38,7 @@ static float eye[3] = {0,0,10};
 static float at[3] = {0,0,0};
 static float y[3] = {0,1,0};
 static float translate[3] = { 0,0,0 };
-static float scale[3] = { 1,1,1 };
+static float scale[3] = { 35,35,35 };
 static float WorldTranslate[3] = { 0,0,0 };
 
 static float cameraRotateX = 0.0f;
@@ -61,73 +61,7 @@ static bool printAllCameras = false;
 static float tiltX = 0.0;
 static float tiltY = 0.0;
 static float tiltZ = 0.0;
-/*
-static void UpdateTiltX(Scene& scene) {
-	Camera cam = scene.GetActiveCamera();
-	const float dif = tiltX - cam.getTiltX();
-	if (dif == 0) return;
-	if (tiltX > -90 && tiltX < 90) {
-		//the distance of the camera form X/Y axis is Z cordinate of eye vector
-		//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
-		const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().z;
-		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, 0, 0);
-		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-		scene.UpdateActiveCameraTilt(tiltX, X);
-		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-	}
-	else if (tiltX == 90) {
-		//if we tilt in 90 degrees the z axis of camera frame must be parallel to X axis
-		const glm::vec3 newAt = cam.getEye() + glm::vec3(1, 0, 0);
-		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-		scene.UpdateActiveCameraTilt(tiltX, X);
-		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-	}
-	else if (tiltX == -90) {
-		const glm::vec3 newAt = cam.getEye() + glm::vec3(-1, 0, 0);
-		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-		scene.UpdateActiveCameraTilt(tiltX, X);
-		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-	}
-	else if (tiltX>90) {
-		const float d = tanf(DEGREETORADIAN(dif-90))*cam.getEye().z;
-		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, 2*GetEye().z, 0);
-		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-		scene.UpdateActiveCameraTilt(tiltX, X);
-		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-	}
-	else if (tiltX < -90) {
-		const float d = tanf(DEGREETORADIAN(90 + dif))*cam.getEye().z;
-		const glm::vec3 newAt = cam.getAt() + glm::vec3(d, GetEye().z, 0);
-		scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-		scene.UpdateActiveCameraTilt(tiltX, X);
-		at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-	}
-}
-	
-static void UpdateTiltY(Scene& scene) {
-	Camera cam = scene.GetActiveCamera();
-	const float dif = tiltY - cam.getTiltY();
-	if (dif == 0) return;
-	//the distance of the camera form X/Y axis is Z cordinate of eye vector
-	//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
-	const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().z;
-	const glm::vec3 newAt = cam.getAt() + glm::vec3(0, d, 0);
-	scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-	scene.UpdateActiveCameraTilt(tiltY, Y);
-	at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-}
-static void UpdateTiltZ(Scene& scene) {
-	Camera cam = scene.GetActiveCamera();
-	const float dif = tiltZ - cam.getTiltZ();
-	if (dif == 0) return;
-	//the distance of the camera form Z axis is X cordinate of eye vector
-	//this equation holds:tanf(dif)=d/eye.z where d holds d+at=newat
-	const float d = tanf(DEGREETORADIAN(dif))*cam.getEye().x;
-	const glm::vec3 newAt = cam.getAt() + glm::vec3(0, 0, d);
-	scene.ActiveCameraLookAt(cam.getEye(), newAt, cam.getY());
-	scene.UpdateActiveCameraTilt(tiltZ, Z);
-	at[0] = newAt.x; at[1] = newAt.y; at[2] = newAt.z;
-}*/
+
 static void UpdateLookAt(Scene& scene) {
 	scene.ActiveCameraLookAt(GetEye(), GetAt(), GetY());
 }
@@ -169,13 +103,20 @@ static void UpdateOrthographic(Scene& scene) {
 	scene.ActiveCamerSetOrth(height, aspect_o, near_o, far_o);
 }
 static void UpdateActiveCamera(Scene& scene) {
-	UpdateLookAt(scene);
-	UpdateXRotate(scene);
-	UpdateYRotate(scene);
-	UpdateZRotate(scene);
-	//UpdateTiltX(scene);
-	//UpdateTiltY(scene);
-	//UpdateTiltZ(scene);
+	const Camera cam = scene.GetActiveCamera();
+	if (cam.getAt() != GetAt() || cam.getEye() != GetEye() || cam.getY() != GetY()) {
+		UpdateLookAt(scene);
+	}
+	if (GetCamXRotate() - scene.GetActiveCameraXRotate() != 0) {
+		UpdateXRotate(scene);
+	}
+	if (GetCamYRotate() - scene.GetActiveCameraYRotate() != 0) {
+		UpdateYRotate(scene);
+	}
+	if (GetCamZRotate() - scene.GetActiveCameraZRotate() != 0) {
+		UpdateZRotate(scene);
+	}
+	
 	if (perspective) {
 		UpdatePerspective(scene);
 	}
@@ -336,11 +277,6 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::InputFloat3("eye", eye);
 		ImGui::InputFloat3("at", at);
 		ImGui::InputFloat3("y axis", y);
-		//camera tilt
-	/*	ImGui::Text("Camera Tilt");
-		ImGui::InputFloat("Camera X Tilt", &tiltX);
-		ImGui::SliderFloat("Camera Y Tilt", &tiltY, -360.0f, 360.0f);
-		ImGui::SliderFloat("Camera Z Tilt", &tiltZ, -360.0f, 360.0f);*/
 		//camera rotations
 		ImGui::Text("Camera Rotations");
 		ImGui::SliderFloat("Camera X Rotate", &cameraRotateX, 0.0f, 360.0f);
@@ -458,7 +394,7 @@ void ResetImGuiMenusModel(std::shared_ptr<const MeshModel> model) {
 	glm::vec3 wtrans = model->getWorldTranslate();
 	WorldTranslate[0] = wtrans.x; WorldTranslate[1] = wtrans.y; WorldTranslate[2] = wtrans.z;
 	glm::vec3 wscl = model->getModelScale();
-	scale[0] = wscl.x; scale[1] = wscl.y; scale[1] = wscl.z;
+	scale[0] = wscl.x; scale[1] = wscl.y; scale[2] = wscl.z;
 	glm::vec4 mCol = model->GetColor();
 	meshColor.x = mCol.x;
 	meshColor.y = mCol.y;

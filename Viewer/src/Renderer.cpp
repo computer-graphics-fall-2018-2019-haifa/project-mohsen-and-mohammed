@@ -17,6 +17,8 @@
 #define MODELFRAMAXIS 15.0f
 #define MAX(x,y) (x>=y)?x:y
 #define MIN(x,y) (x<y)?x:y
+//static bool *tempBuffer=nullptr;
+
 static float max(float a, float b, float c) {
 	if (a >= b && a >= c) return a;
 	else if (b >= a && b >= c) return b;
@@ -44,6 +46,9 @@ Renderer::~Renderer()
 	{
 		delete[] colorBuffer;
 	}
+	if (zBuffer) {
+		delete[] zBuffer;
+	}
 };
 
 void Renderer::putPixel(int i, int j, const glm::vec3& color)
@@ -62,6 +67,7 @@ void Renderer::putZ(int i, int j, float z) {
 	if (i < 0) return; if (i >= viewportWidth) return;
 	if (j < 0) return; if (j >= viewportHeight) return;
 	zBuffer[ZINDEX(viewportWidth, i, j)] = z;
+	//tempBuffer[ZINDEX(viewportWidth, i, j)] = true;
 }
 
 void Renderer::createBuffers(int viewportWidth, int viewportHeight)
@@ -70,26 +76,17 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 	{
 		delete[] colorBuffer;
 	}
-
-	colorBuffer = new float[3* viewportWidth * viewportHeight];
-	for (int x = 0; x < viewportWidth; x++)
-	{
-		for (int y = 0; y < viewportHeight; y++)
-		{
-			putPixel(x, y, glm::vec3(0.0f, 0.0f, 0.0f));
-		}
-	}
-
 	if (zBuffer) {
 		delete[] zBuffer;
 	}
-
-	zBuffer= new float[ viewportWidth * viewportHeight];
+	colorBuffer = new float[3* viewportWidth * viewportHeight];
+	zBuffer = new float[viewportWidth * viewportHeight];
 	for (int x = 0; x < viewportWidth; x++)
 	{
 		for (int y = 0; y < viewportHeight; y++)
 		{
-			zBuffer[ZINDEX(viewportWidth,x,y)] = 1.0f;
+			putPixel(x, y, glm::vec3(0.8f, 0.8f, 0.8f));
+			zBuffer[ZINDEX(viewportWidth, x, y)] = std::numeric_limits<float>::max();
 		}
 	}
 }
@@ -112,53 +109,56 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 	this->viewportWidth = viewportWidth;
 	this->viewportHeight = viewportHeight;
 	createBuffers(viewportWidth, viewportHeight);
+	glm::mat4 scaleM = Utils::Scale(glm::vec3(viewportWidth / 2, viewportHeight / 2, 1));
+	glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
+	this->ViewPortTransform = scaleM * translateM;
 	createOpenGLBuffer();
 }
 
 void Renderer::Render(const Scene& scene)
 {
 	//Renderer::PrintTraingle(glm::vec2(0, 750), glm::vec2(750, 750), glm::vec2(750, 200));
-	
 	//print world frame
-	Renderer::PrintWorldFrame(scene);
-	if (PrintAllCameras_()) {
-		Renderer::PrintAllCameras(scene);
-	}
-	if (scene.GetModelCount() <= 0) return;
-	std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
-	Camera activeCamera = scene.GetActiveCamera();
-	Renderer::UpdateWorldTransform(scene);
-	glm::mat4 modelT = activeModel->GetModelTransformation();
-	glm::mat4 worldT = activeModel->GetWorldTransformation();
-	glm::mat4 IvT = activeCamera.GetInverseViewTranform();
-	glm::mat4 pT = activeCamera.GetProjectionTransform();
-	glm::mat4 VpT = Renderer::GetViewPortTramsform();
-	std::vector<glm::vec3> vertix;
-	glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
+	//Renderer::PrintWorldFrame(scene);
+	//if (PrintAllCameras_()) {
+	//	Renderer::PrintAllCameras(scene);
+	//}
+	//if (scene.GetModelCount() <= 0) return;
+	//std::shared_ptr< MeshModel> activeModel = scene.GetAciveModel();
+	//Camera activeCamera = scene.GetActiveCamera();
+	//Renderer::UpdateWorldTransform(scene);
+	//glm::mat4 modelT = activeModel->GetModelTransformation();
+	//glm::mat4 worldT = activeModel->GetWorldTransformation();
+	//glm::mat4 IvT = activeCamera.GetInverseViewTranform();
+	//glm::mat4 pT = activeCamera.GetProjectionTransform();
+	//glm::mat4 VpT = Renderer::GetViewPortTramsform();
+	//std::vector<glm::vec3> vertix;
+	//glm::mat4 finalM = glm::transpose(VpT)*glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
 	//Renderer::PrintWorldFrame(scene);
 	//print model frame
-	Renderer::PrintModelFrame(scene);
+	//Renderer::PrintModelFrame(scene);
 	//print model
-	glm::vec4 col = activeModel->GetColor();
-	Renderer::PrintModel(activeModel, finalM,glm::vec3(col.x,col.y,col.z));
+	//glm::vec4 col = activeModel->GetColor();
+	//glm::mat4 finalMt = glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
+	//Renderer::PrintModel(activeModel, finalM/*,finalMt*/,glm::vec3(col.x,col.y,col.z));
 	//print normal per face
-	if (DrawFaceNormal()) {
-		Renderer::PrintNormalPerFace(activeModel, finalM);
-	}
+	//if (DrawFaceNormal()) {
+		//Renderer::PrintNormalPerFace(activeModel, finalM);
+	//}
 	//print bounding box
-	if (DrawBoundingBox()) {
-		Renderer::PrintBoundingBox(activeModel, finalM);
-	}
+	//if (DrawBoundingBox()) {
+	//	Renderer::PrintBoundingBox(activeModel, finalM);
+	//}
 	//print normal per vertix
-	if (DrawVertixNormal()) {
-		Renderer::PrintNormalPerVertix(activeModel, finalM);
-	}
-	if (PrintAllModels_()) {
-		Renderer::PrintAllModels(scene);
-	}
+	//if (DrawVertixNormal()) {
+	//	Renderer::PrintNormalPerVertix(activeModel, finalM);
+	//}
+	//if (PrintAllModels_()) {
+	//	Renderer::PrintAllModels(scene);
+	//}
 }
 
-void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec3& Color,int toFlip,int fllag) 
+void Renderer::PrintLineBresenham(int x1, int y1,float z1, int x2, int y2,float z2, const glm::vec3& Color,int toFlip,int fllag) 
 {
 	const bool steep = (fabs(y2 - y1) > fabs(x2 - x1));
 	if (steep)
@@ -171,6 +171,7 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 	{
 		std::swap(x1, x2);
 		std::swap(y1, y2);
+		std::swap(z1, z2);
 	}
 
 	const float dx = x2 - x1;
@@ -186,11 +187,18 @@ void Renderer::PrintLineBresenham(int x1, int y1, int x2, int y2, const glm::vec
 	{
 		if (steep)
 		{
-			putPixel(y, x, Color);
+		//	if (zBuffer[ZINDEX(viewportHeight, y, x)] > Utils::ZInterpolation(y, x, glm::vec3(x1, y1, z1), glm::vec3(x2, y2, z2))) {
+			//	putZ(y, x, Utils::ZInterpolation(y, x, glm::vec3(x1, y1, z1), glm::vec3(x2, y2, z2)));
+				putPixel(y, x, Color);
+			//}
+			
 		}
 		else
 		{
-			putPixel(x, y, Color);
+			//if (zBuffer[ZINDEX(viewportHeight, x, y)] > Utils::ZInterpolation(x, y, glm::vec3(x1, y1, z1), glm::vec3(x2, y2, z2))) {
+				//putZ(x, y, Utils::ZInterpolation(x, y, glm::vec3(x1, y1, z1), glm::vec3(x2, y2, z2)));
+				putPixel(x, y, Color);
+			//}
 		}
 
 		error -= dy;
@@ -364,13 +372,17 @@ void Renderer::PrintNormalPerVertix(std::shared_ptr<const MeshModel> model, glm:
 		PrintLine(model->getVertix(i),model->getVertixNormal(i),matrix);
 	}
 }
-glm::mat4 Renderer::GetViewPortTramsform()const {
-	glm::mat4 scaleM = Utils::Scale(glm::vec3(viewportWidth/2, viewportHeight/2,1));
-	glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
-	return  scaleM*translateM;
+glm::mat4 Renderer::GetViewPortTramsform() {
+	//glm::mat4 scaleM = Utils::Scale(glm::vec3(viewportWidth / 2, viewportHeight / 2, 1));
+	//glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
+	//this->ViewPortTransform = scaleM * translateM;
+	return this->ViewPortTransform;
+	//glm::mat4 scaleM = Utils::Scale(glm::vec3(viewportWidth/2, viewportHeight/2,1));
+	//glm::mat4 translateM = Utils::Translate(glm::vec3(viewportWidth / 2, viewportHeight / 2, 0));
+	//return  scaleM*translateM;
 }
 void Renderer::PrintLineBresenham(const glm::vec3& point1, const glm::vec3& point2, const glm::vec3& color) {
-	Renderer::PrintLineBresenham(point1.x,point1.y,point2.x,point2.y, color);
+	Renderer::PrintLineBresenham(point1.x,point1.y,point1.z,point2.x,point2.y,point2.z, color);
 }
 void Renderer::PrintLine(const glm::vec3& point, const glm::vec3& direction, glm::mat4 transform,const glm::vec3& color) {
 	const glm::vec3 temp1 = Utils::SwitchFromHom((transform)*Utils::HomCoordinats(point));
@@ -481,25 +493,15 @@ void Renderer::UpdateModelColor(const Scene& scene)const {
 	const glm::vec3& col = GetMeshColor();
 	activeModel->SetColor(glm::vec4(col.x,col.y,col.z,1));
 }
-void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform,const glm::vec3& col) {
+void Renderer::PrintModel(std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform/*, glm::mat4 transform2*/, const glm::vec3& col) {
 	for (int j = 0; j < activeModel->GetFaceCount(); j++) {
 		std::vector<glm::vec3> vertix = activeModel->GetVertices(j);
-	//for (int i = 0; i < 3; i++) {
-			//Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, GetMeshColor());
-			Renderer::PrintTraingle(vertix, transform,col);
-			//const glm::vec3 p1 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(0)));
-			//const glm::vec3 p2 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(1)));
-			//const glm::vec3 p3 = Utils::SwitchFromHom(transform*Utils::HomCoordinats(vertix.at(2)));
-			/*if (p1.x<activeModel->getMinXAfterTranformX(transform) ) {
-				std::cout << "out of range!" << std::endl;
-			}
-			if (p2.x<activeModel->getMinXAfterTranformX(transform) ) {
-				std::cout << "out of range!" << std::endl;
-			}
-			if (p3.x<activeModel->getMinXAfterTranformX(transform) ) {
-				std::cout << "out of range!" << std::endl;
-			}*/
-		//}
+		//Renderer::PrintTraingle(vertix, transform/*, transform2*/, col);
+	for (int i = 0; i < 3; i++) {
+			Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, glm::vec3(1,0,0));
+			
+	}
+		
 		vertix.clear();
 	}
 }
@@ -542,25 +544,27 @@ void Renderer::PrintTraingle(const glm::vec3& p1, const glm::vec3& p2, const glm
 		for (int j = yMin; j <= yMax;j++) {
 			if (Utils::DoesContain(glm::vec2(i, j), glm::vec2(p1.x, p1.y), glm::vec2(p2.x, p2.y), glm::vec2(p3.x, p3.y))) {
 				float z = Utils::ZInterpolation(i,j,p1,p2,p3);
-				if (z < zBuffer[ZINDEX(viewportHeight, i, j)]) {
+				if (z< zBuffer[ZINDEX(viewportHeight, i, j)]) {
 					Renderer::putZ(i,j,z);
-					Renderer::putPixel(i + 0.5f, j + 0.5f, col);
+					Renderer::putPixel(i , j , col);
 				}
 			}
-				
 		}
 	}
 }
-void Renderer::PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform,const glm::vec3& col) {
+void Renderer::PrintTraingle(const std::vector<glm::vec3>& vertix, glm::mat4 transform/*, glm::mat4 transform2*/,const glm::vec3& col) {
 	if (vertix.size() != 3) { return; }
-	const glm::vec4 p1 =Utils::HomCoordinats( transform*Utils::HomCoordinats(vertix.at(0)));
-	const glm::vec4 p2 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(1)));
-	const glm::vec4 p3 = Utils::HomCoordinats(transform*Utils::HomCoordinats(vertix.at(2)));
-
-	const glm::vec3 _p1(p1.x, p1.y,p1.z);
-	const glm::vec3 _p2(p2.x, p2.y,p1.z);
-	const glm::vec3 _p3(p3.x, p3.y,p1.z);
-	Renderer::PrintTraingle(_p1, _p2,_p3,col);
+	//const float temp = (transform2 * Utils::HomCoordinats(vertix.at(0))).z;
+	//const float temp2 = vertix.at(1).z;
+	//const float temp3 = vertix.at(2).z;
+	const glm::vec3 p1 =/*Utils::SwitchFromHom*/( transform*Utils::HomCoordinats(vertix.at(0)));
+	const glm::vec3 p2 = /*Utils::SwitchFromHom*/(transform*Utils::HomCoordinats(vertix.at(1)));
+	const glm::vec3 p3 = /*Utils::SwitchFromHom*/(transform*Utils::HomCoordinats(vertix.at(2)));
+	//if (temp != p1.z) {
+	//	std::cout<<temp << "  " << p1.z<<std::endl;
+	//}
+	//const glm::vec3 _p1(p1.x, p1.y,p1.z);
+	//const glm::vec3 _p2(p2.x, p2.y,p2.z);
+	//const glm::vec3 _p3(p3.x, p3.y,p3.z);
+	Renderer::PrintTraingle(p1, p2,p3,col);
 }
-
-

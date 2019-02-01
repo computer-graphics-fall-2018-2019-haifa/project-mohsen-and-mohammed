@@ -46,6 +46,7 @@ public:
 	//this method returns true if and only if " point " is inside the trainagle v1v2v3
 	static float Area(const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3);//calculates area of trainale
 	static float ZInterpolation(int i,int j,const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3);
+	static float ZInterpolation(int i, int j, const glm::vec3& v1, const glm::vec3& v2);
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

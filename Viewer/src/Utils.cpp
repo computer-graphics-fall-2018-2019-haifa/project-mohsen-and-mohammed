@@ -106,13 +106,13 @@ std::string Utils::GetFileName(const std::string& filePath)
 }
 
 glm::vec3 Utils::SwitchFromHom(const glm::vec4& vector) {
-	if (vector.w != 0) {
-		return glm::vec3(vector.x / vector.w, vector.y / vector.w, vector.z / vector.w);
-	}
-	else {
+	//if (vector.w != 0) {
+		return glm::vec3(vector.x , vector.y, vector.z );
+	//}
+	/*else {
 		std::cout << "invalid vector!." << std::endl;
 		exit(1);
-	}
+	}*/
 }
 
 glm::vec4 Utils::HomCoordinats(const glm::vec3& vector) {
@@ -245,7 +245,7 @@ float Utils::FindYLine(const glm::vec2& p1, const glm::vec2& p2, const float x) 
 	return /*0;*/ (-1 * (p1.x - x)*(p1.y - p2.y) / (p1.x - p2.x)) + p1.y;
 }
 float Utils::Area(const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
-	return fabs((v1.x*(v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y)) / 2.0f);
+	return /*fabs*/((v1.x*(v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y)) / 2.0f);
 }
 bool Utils::DoesContain(const glm::vec2& p, const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
 	float l1 = (p.x - v1.x)*(v3.y - v1.y) - (v3.x - v1.x)*(p.y - v1.y),
@@ -255,9 +255,31 @@ bool Utils::DoesContain(const glm::vec2& p, const glm::vec2& v1, const glm::vec2
 }
 
 float Utils::ZInterpolation(int i, int j, const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3) {
-	const float area = Utils::Area(glm::vec2(v1.x, v2.x), glm::vec2(v2.x, v2.y), glm::vec2(v3.x, v3.y));
-	const float area1 = Utils::Area(glm::vec2(v1.x, v2.x), glm::vec2(v2.x, v2.y), glm::vec2(i, j));
-	const float area2 = Utils::Area(glm::vec2(v1.x, v2.x), glm::vec2(i, j), glm::vec2(v3.x, v3.y));
-	const float area3 = Utils::Area(glm::vec2(i, j), glm::vec2(v2.x, v2.y), glm::vec2(v3.x, v3.y));
-	return (area1 / area)*v1.z + (area2 / area)*v2.z + (area3 / area)*v3.z;
+	const float area = Utils::Area(glm::vec2(v1.x, v1.y), glm::vec2(v2.x, v2.y), glm::vec2(v3.x, v3.y));
+	const float area1 = Utils::Area(glm::vec2(v2.x, v2.y), glm::vec2(v3.x, v3.y), glm::vec2(i, j));
+	const float area2 = Utils::Area(glm::vec2(v1.x, v1.y), glm::vec2(i, j), glm::vec2(v3.x, v3.y));
+	const float area3 = Utils::Area(glm::vec2(i, j), glm::vec2(v2.x, v2.y), glm::vec2(v1.x, v1.y));
+	return ((area1)*v1.z + (area2)*v2.z + (area3)*v3.z)/area;
+}
+
+float Utils::ZInterpolation(int i, int j, const glm::vec3& v1, const glm::vec3& v2) {
+	if (v1.x == v2.x && v1.y == v2.y) {
+		return std::numeric_limits<float>::max();
+	}
+	if (v1.x > v2.x) {
+		const float t = (i - v1.x) / (v2.x - v1.x);
+		return t * v2.z + (1 - t)*v1.z;
+	}
+	else if (v2.x > v1.x) {
+		const float t = (i - v2.x) / (v2.x - v2.x);
+		return t * v1.z + (1 - t)*v2.z;
+	}
+	else if (v1.y>v2.y) {
+		const float t = (i - v1.y) / (v2.y-v1.y);
+		return t * v2.z + (1 - t)*v1.z;
+	}
+	else/*(v2.y > v1.y)*/ {
+		const float t = (i - v2.y) / (v1.y - v2.y);
+		return t * v1.z + (1 - t)*v2.z;
+	}
 }
