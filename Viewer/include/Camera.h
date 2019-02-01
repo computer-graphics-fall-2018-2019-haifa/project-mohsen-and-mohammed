@@ -75,7 +75,6 @@ public:
 	
 	bool CanBeSeen(const std::vector<glm::vec4>&) const;
 	const glm::mat4& GetInverseViewTranform()const;
-	const glm::mat4& GetViewTransform()const;
 	const glm::mat4& GetProjectionTransform()const;
 
 	const float& getXRotate()const;
@@ -105,7 +104,12 @@ public:
 	float getTiltY()const;
 	float getTiltZ()const;
 
+<<<<<<< HEAD
 	void setTiltX(const float tilt);
 	void setTiltY(const float tilt);
 	void setTiltZ(const float tilt);
 };
+=======
+};
+
+>>>>>>> parent of 8bc7622... camera rotation bug fixed
