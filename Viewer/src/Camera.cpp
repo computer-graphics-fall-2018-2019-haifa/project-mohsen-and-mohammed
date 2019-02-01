@@ -156,6 +156,7 @@ float Camera::getHeight()const {
 float Camera::getZoom()const {
 	return _zoom;
 <<<<<<< HEAD
+<<<<<<< HEAD
 }
 const glm::mat4& Camera::GetViewTransform()const {
 	return viewTransformation;
@@ -178,6 +179,8 @@ void Camera::setTiltY(const float t) {
 }
 void Camera::setTiltZ(const float t) {
 	tiltZ = t;
+=======
+>>>>>>> parent of 8bc7622... camera rotation bug fixed
 =======
 >>>>>>> parent of 8bc7622... camera rotation bug fixed
 }

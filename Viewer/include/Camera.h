@@ -112,4 +112,9 @@ public:
 =======
 };
 
+<<<<<<< HEAD
+>>>>>>> parent of 8bc7622... camera rotation bug fixed
+=======
+};
+
 >>>>>>> parent of 8bc7622... camera rotation bug fixed
