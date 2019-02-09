@@ -7,7 +7,7 @@
 #include <memory>
 #include "MeshModel.h"
 #include "Camera.h"
-
+#include "Light.h"
 /*
  * Scene class.
  * This class holds all the scene information (models, cameras, lights, etc..)
@@ -16,9 +16,13 @@ class Scene {
 private:
 	std::vector<std::shared_ptr<MeshModel>> models;
 	std::vector<Camera> cameras;
+	std::vector<Light> lights;
+
 
 	int activeCameraIndex;
 	int activeModelIndex;
+
+	glm::vec3 ambientColor;
 
 public:
 	Scene();
@@ -60,7 +64,6 @@ public:
 		const float aspect,
 		const float near,
 		const float far);
-
-
-
+	void setAmbient(const glm::vec3& newColor);
+	glm::vec3 getAmbient()const;
 };

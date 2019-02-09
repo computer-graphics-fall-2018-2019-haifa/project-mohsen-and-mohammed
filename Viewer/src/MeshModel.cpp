@@ -67,6 +67,7 @@ void MeshModel::calculateNormalPerFace()  {
 		faces.at(i).SetNormal(Utils::SwitchFromHom(Utils::Scale(glm::vec3(0.33f,0.33f,0.33f))*Utils::HomCoordinats(newNormal)));
 	}
 }
+
 const std::vector<glm::vec3> MeshModel::GetVertices(const int faceIndex)const {
 	std::vector<glm::vec3> myVertices;
 	for (int i = 0; i < 3; i++) {
@@ -82,7 +83,6 @@ const std::vector<glm::vec3> MeshModel::GetNormals(const int faceIndex) const {
 	}
 	return myNormals;
 }
-
 
 float MeshModel::GetFaceArea(const int faceIndex) const {
 	const std::vector < glm::vec3 > points= MeshModel::GetVertices(faceIndex);
@@ -144,6 +144,7 @@ float MeshModel::getMaxAfterTransformX(const glm::mat4& transform)const{
 float MeshModel::getMaxX()const {
 	return getMaxAfterTransformX(glm::mat4(1));
 }
+
 float MeshModel::getMaxY()const {
 	glm::vec4 row1(0,1,0,0);
 	glm::vec4 row2(1,0,0,0);
@@ -151,6 +152,7 @@ float MeshModel::getMaxY()const {
 	glm::vec4 row4(0,0,0,1);
 	return getMaxAfterTransformX(glm::mat4(row1,row2,row3,row4));
 }
+
 float MeshModel::getMaxZ()const {
 	glm::vec4 row1(0, 0, 1, 0);
 	glm::vec4 row2(0, 1, 0, 0);
@@ -158,9 +160,11 @@ float MeshModel::getMaxZ()const {
 	glm::vec4 row4(0, 0, 0, 1);
 	return getMaxAfterTransformX(glm::mat4(row1, row2, row3, row4));
 }
+
 float MeshModel::getMinX()const {
 	return getMinXAfterTranformX(glm::mat4(1));
 }
+
 float MeshModel::getMinY()const {
 	glm::vec4 row1(0, 1, 0, 0);
 	glm::vec4 row2(1, 0, 0, 0);
@@ -168,6 +172,7 @@ float MeshModel::getMinY()const {
 	glm::vec4 row4(0, 0, 0, 1);
 	return getMinXAfterTranformX(glm::mat4(row1, row2, row3, row4));
 }
+
 float MeshModel::getMinZ()const {
 	glm::vec4 row1(0, 0, 1, 0);
 	glm::vec4 row2(0, 1, 0, 0);
@@ -207,39 +212,51 @@ glm::vec3 MeshModel::getVertixNormal(const int index)const {
 float MeshModel::getModelThetaX()const {
 	return modelThetaX;
 }
+
 float MeshModel::getModelThetyaY()const {
 	return modelThetaY;
 }
+
 float MeshModel::getModelThetaZ()const {
 	return modelThetaZ;
 }
+
 glm::vec3 MeshModel::getModelScale()const {
 	return modelScale;
 }
+
 glm::vec3 MeshModel::getModelTranslate()const {
 	return modelTranslate;
 }
+
 void MeshModel::setModelThetaX(const float theta) {
 	this->modelThetaX = theta;
 }
+
 void MeshModel::setModelThetaY(const float theta) {
 	this->modelThetaY = theta;
 }
+
 void MeshModel::setModelThetaZ(const float theta) {
 	this->modelThetaZ = theta;
 }
+
 void MeshModel::setModelScale(const glm::vec3& newScale) {
 	this->modelScale = newScale;
 }
+
 void MeshModel::setModelTranslate(const glm::vec3& newTranslate) {
 	this->modelTranslate = newTranslate;
 }
+
 glm::vec3 MeshModel::getWorldTranslate()const {
 	return worldTranslate;
 }
+
 void MeshModel::setWorldTranslate(const glm::vec3& newTranslate) {
 	worldTranslate = newTranslate;
 }
+
 glm::vec3 MeshModel::CalculateInModelFrame(const glm::vec3& vector)const {
 	//the standart basis of R3
 	const glm::vec3 v1(1, 0, 0), v2(0, 1, 0), v3(0, 0, 1);
@@ -260,6 +277,7 @@ glm::vec3 MeshModel::CalculateInModelFrame(const glm::vec3& vector)const {
 											0.0f,0.0f,0.0f,1.0f);
 	return Utils::SwitchFromHom(glm::transpose(Utils::Translate(Utils::SwitchFromHom(O)))*transformationMatrixTranspose*Utils::HomCoordinats(vector));
 }
+
 glm::vec3 MeshModel::CalculateInModelFrameDirection(const glm::vec3& vector)const {
 	//the standart basis of R3
 	const glm::vec4 v1(1, 0, 0, 1), v2(0, 1, 0, 1), v3(0, 0, 1, 1);
@@ -273,27 +291,42 @@ glm::vec3 MeshModel::CalculateInModelFrameDirection(const glm::vec3& vector)cons
 		u3.x, u3.y, u3.z);
 	return transformationMatrixTranspose * vector;
 }
+
 float MeshModel::getWorldThetaX()const {
 	return worldThetaX;
 }
+
 float MeshModel::getWorldThetaY()const {
+
 	return worldThetaY;
 }
+
 float MeshModel::getWorldThetaZ()const {
 	return worldThetaZ;
 }
+
 void MeshModel::setWorldThetaX(const float theta) {
 	worldThetaX = theta;
 }
+
 void MeshModel::setWorldThetaY(const float theta) {
 	worldThetaY = theta;
 }
+
 void MeshModel::setWorldThetaZ(const float theta) {
 	worldThetaZ = theta;
 }
+
 void MeshModel::SetModelTransformation(const glm::mat4x4& mat) {
 	this->modelTransform = mat;
 }
+
 const glm::mat4x4& MeshModel::GetModelTransformation()const {
 	return this->modelTransform;
+}
+
+void MeshModel::TransformVertices(const glm::mat3& transform) {
+	for (int i = 0; i < vertices.size(); i++) {
+		vertices.at(i) = glm::transpose(transform)*vertices.at(i);
+	}
 }

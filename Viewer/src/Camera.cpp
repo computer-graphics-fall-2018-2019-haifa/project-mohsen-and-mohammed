@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include "Utils.h"
-#define RADIAN(theta)  (2 * theta / 360.0f*M_PI)
+#define RADIAN(theta)  (2.0f * (float)theta / 360.0f*M_PI)
 
 Camera::Camera(const glm::vec4& eye, const glm::vec4& at, const glm::vec4& up) :
 	_zoom(1.0),_height(0.0f),_aspectRatiop(0.0f), _aspectRatioo(0.0f), _fovy(0.0f),_nearo(0.0f),_faro(0.0f),
@@ -23,7 +23,7 @@ void Camera::SetCameraLookAt(const glm::vec3& eye, const glm::vec3& at, const gl
 	glm::vec3 z = Utils::NormalizeVector(eye-at);
 	glm::vec3 x = Utils::NormalizeVector(Utils::crossProduct(up, z));
 	glm::vec3 y = Utils::NormalizeVector(Utils::crossProduct(z, x));
-	this->InverseViewTransformation = glm::mat4(x.x,x.y,x.z,0, y.x,y.y,y.z,0, z.x,z.y,z.z,0, 0,0,0,1)*Utils::Translate(glm::vec3(-1,-1,-1)*eye);
+	this->InverseViewTransformation = Utils::Translate(glm::vec3(-1, -1, -1)*eye)*glm::mat4(x.x,x.y,x.z,0, y.x,y.y,y.z,0, z.x,z.y,z.z,0, 0,0,0,1)/*Utils::Translate(glm::vec3(-1,-1,-1)*eye)*/;
 	this->viewTransformation = glm::inverse(this->InverseViewTransformation);
 }
 void Camera::SetOrthographicProjection(
@@ -155,8 +155,6 @@ float Camera::getHeight()const {
 }
 float Camera::getZoom()const {
 	return _zoom;
-<<<<<<< HEAD
-<<<<<<< HEAD
 }
 const glm::mat4& Camera::GetViewTransform()const {
 	return viewTransformation;
@@ -179,8 +177,4 @@ void Camera::setTiltY(const float t) {
 }
 void Camera::setTiltZ(const float t) {
 	tiltZ = t;
-=======
->>>>>>> parent of 8bc7622... camera rotation bug fixed
-=======
->>>>>>> parent of 8bc7622... camera rotation bug fixed
 }

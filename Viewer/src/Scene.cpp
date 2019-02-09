@@ -6,7 +6,8 @@
 
 Scene::Scene() :
 	activeCameraIndex(0),
-	activeModelIndex(0)
+	activeModelIndex(0), 
+	ambientColor(glm::vec3(0))
 {
 
 }
@@ -107,4 +108,11 @@ void Scene::UpdateActiveCameraTilt(const float x, AXIS a) {
 		cameras.at(this->GetActiveCameraIndex()).setTiltY(x);
 	else if (a == Z)
 		cameras.at(this->GetActiveCameraIndex()).setTiltZ(x);
+}
+
+void Scene::setAmbient(const glm::vec3& newColor) {
+	ambientColor = newColor;
+}
+glm::vec3 Scene::getAmbient()const {
+	return ambientColor;
 }

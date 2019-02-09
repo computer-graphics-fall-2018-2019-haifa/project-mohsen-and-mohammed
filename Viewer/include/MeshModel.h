@@ -107,4 +107,6 @@ public:
 
 	float getMinXAfterTranformX(const glm::mat4& Transform)const;
 	float getMaxAfterTransformX(const glm::mat4& Tranform)const;
+
+	void TransformVertices(const glm::mat3&);
 };

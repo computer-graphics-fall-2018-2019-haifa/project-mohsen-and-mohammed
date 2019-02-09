@@ -21,7 +21,7 @@ bool showSeneWindow = true;
 bool showCameraWindow = true;
 bool perspective = false;
 bool orthographic = !perspective;
-glm::vec4 clearColor = glm::vec4(0.8f, 0.8f, 0.8f, 1.00f);
+glm::vec4 clearColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.00f);
 glm::vec3 meshColor = glm::vec3(0.0f, 0.0f, 0.0f);
 static bool temp = false;
 static float worldRotateX = 0.0f;
@@ -62,19 +62,27 @@ static float tiltX = 0.0;
 static float tiltY = 0.0;
 static float tiltZ = 0.0;
 
+static float ambientColor[3] = {0.5,0.5,0.5};
+
+//color info
+static void updateAmbient(Scene& scene) {
+	scene.setAmbient(glm::vec3(ambientColor[0], ambientColor[1], ambientColor[2]));
+}
+
+//update camera Aux functions
 static void UpdateLookAt(Scene& scene) {
 	scene.ActiveCameraLookAt(GetEye(), GetAt(), GetY());
 }
 static void UpdateXRotate(Scene& scene) {
 	const float  dif = GetCamXRotate() - scene.GetActiveCameraXRotate();
 	if (dif == 0) return;
-	const glm::vec3 newEye = Utils::SwitchFromHom(glm::inverse(Utils::RotateOrigin(DEGREETORADIAN(dif), X))*Utils::HomCoordinats(GetEye()));
-	//const glm::vec3 newUp = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), X)*Utils::HomCoordinats(GetY()));
+	const glm::vec3 newEye = Utils::SwitchFromHom((Utils::RotateOrigin(DEGREETORADIAN(dif), X))*Utils::HomCoordinats(GetEye()));
+	const glm::vec3 newUp = Utils::SwitchFromHom(Utils::RotateOrigin(DEGREETORADIAN(dif), X)*Utils::HomCoordinats(GetY()));
 	scene.ActiveCameraLookAt(newEye, GetAt(), GetY());
 	scene.UpdateActiveCameraXRotate(GetCamXRotate());
-	eye[0] = newEye.x; //y[0] = newUp.x;
-	eye[1] = newEye.y;// y[1] = newUp.y;
-	eye[2] = newEye.z; //y[2] = newUp.z;
+	eye[0] = newEye.x; y[0] = newUp.x;
+	eye[1] = newEye.y; y[1] = newUp.y;
+	eye[2] = newEye.z; y[2] = newUp.z;
 }
 static void UpdateYRotate(Scene& scene) {
 	const float dif = GetCamYRotate() - scene.GetActiveCameraYRotate();
@@ -124,6 +132,26 @@ static void UpdateActiveCamera(Scene& scene) {
 		UpdateOrthographic(scene);
 	}
 }
+//camera info functions
+glm::vec3 GetEye() {
+	return glm::vec3(eye[0], eye[1], eye[2]);
+}
+glm::vec3 GetAt() {
+	return glm::vec3(at[0], at[1], at[2]);
+}
+glm::vec3 GetY() {
+	return glm::vec3(y[0], y[1], y[2]);
+}
+float GetCamXRotate() {
+	return cameraRotateX;
+}
+float GetCamYRotate() {
+	return cameraRotateY;
+}
+float GetCamZRotate() {
+	return cameraRotateZ;
+}
+//mesh model info function
 const glm::vec4& GetClearColor()
 {
 	return clearColor;
@@ -133,15 +161,6 @@ const glm::vec3& GetMeshColor() {
 }
 glm::vec3 GetTranslateVector() {
 	return glm::vec3(translate[0], translate[1], translate[2]);
-}
-glm::vec3 GetEye() {
-	return glm::vec3(eye[0], eye[1], eye[2]);
-}
-glm::vec3 GetAt() {
-	return glm::vec3(at[0],at[1],at[2]);
-}
-glm::vec3 GetY() {
-	return glm::vec3(y[0],y[1],y[2]);
 }
 float GetXAxisRotation() {
 	return rotateX;
@@ -167,9 +186,22 @@ bool DrawVertixNormal() {
 bool DrawBoundingBox() {
 	return boundingBox;
 }
+glm::vec3 GetWorldTranslateVector() {
+	return glm::vec3(WorldTranslate[0], WorldTranslate[1], WorldTranslate[2]);
+}
+float GetWorldXRotation() {
+	return worldRotateX;
+}
+float GetWorldYRotation() {
+	return worldRotateY;
+}
+float GetWorldZRotation() {
+	return worldRotateZ;
+}
+/**************************************************/
 void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 {
-	Camera cam = scene.GetActiveCamera();
+	//Camera cam = scene.GetActiveCamera();
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (showDemoWindow)
 	{
@@ -186,10 +218,11 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Checkbox("Scene Window", &showSeneWindow);      // Edit bools storing our window open/close state
 		ImGui::Checkbox("Model Window", &showModelWindow);
 		ImGui::Checkbox("Camera Window", &showCameraWindow);
+		ImGui::Text("Ambient Light color:");
+		ImGui::ColorEdit3("",ambientColor);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 	}
-
 	// 4. Demonstrate creating a fullscreen menu bar and populating it.
 	{
 		ImGuiWindowFlags flags = ImGuiWindowFlags_NoFocusOnAppearing;
@@ -224,7 +257,8 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Begin("Model Window");
 		//selecting color
 		static float color[3] = { 0,0,0 };
-		ImGui::ColorEdit3("Color", color);
+		
+		ImGui::ColorEdit3("", color);
 		meshColor.x = color[0];
 		meshColor.y = color[1];
 		meshColor.z = color[2];
@@ -259,6 +293,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::InputFloat3("world translate", WorldTranslate);
 		ImGui::End();
 	}
+	//cameras' window
 	if (showCameraWindow) {
 		ImGui::Begin("Camera Window");
 		if (ImGui::Button("focus active model")) {
@@ -302,6 +337,7 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		}
 		ImGui::End();
 	}
+	//scene window
 	if (showSeneWindow) {
 		ImGui::Begin("Scene Window");
 		if (ImGui::Button("Switch Camera")) {
@@ -320,31 +356,13 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Checkbox("Print All Cameras",&printAllCameras);
 		ImGui::End();
 	}
-	//UpdateActiveCamera(scene);
+	UpdateActiveCamera(scene);
+	//lights' window
+
+	updateAmbient(scene);
 }
 bool getTemp() {
 	return temp;
-}
-glm::vec3 GetWorldTranslateVector() {
-	return glm::vec3(WorldTranslate[0], WorldTranslate[1], WorldTranslate[2]);
-}
-float GetWorldXRotation() {
-	return worldRotateX;
-}
-float GetWorldYRotation() {
-	return worldRotateY;
-}
-float GetWorldZRotation() {
-	return worldRotateZ;
-}
-float GetCamXRotate() {
-	return cameraRotateX;
-}
-float GetCamYRotate() {
-	return cameraRotateY;
-}
-float GetCamZRotate() {
-	return cameraRotateZ;
 }
 void ResetImGuiMenusModel() {
 	worldRotateX = 0.0f;

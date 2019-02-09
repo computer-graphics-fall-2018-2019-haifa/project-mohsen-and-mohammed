@@ -118,8 +118,8 @@ ImGuiIO& SetupDearImgui(GLFWwindow* window)
 	ImGui_ImplOpenGL3_Init();
 
 	// Setup style
-	//ImGui::StyleColorsDark();
-	ImGui::StyleColorsClassic();
+	ImGui::StyleColorsDark();
+	//ImGui::StyleColorsClassic();
 
 	return io;
 }

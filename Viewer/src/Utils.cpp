@@ -213,40 +213,58 @@ glm::vec3 Utils::Normalize(const glm::vec3 vector) {
 float Utils::Norm(const glm::vec3 vector) {
 	return sqrtf(vector.x*vector.x + vector.y * vector.y + vector.z * vector.z);
 }
+
 float Utils::floatPresice(float x) {
 	return (fabs(x - (int)x) <= 1.0f/360.0f) ? (int)x : x;
 }
+
 void Utils::floatPresice(glm::vec3& vec) {
 	vec.x = floatPresice(vec.x);
 	vec.y = floatPresice(vec.y);
 	vec.z = floatPresice(vec.z);
 }
+
 void Utils::floatPresice(glm::vec4& vec) {
 	vec.x = floatPresice(vec.x);
 	vec.y = floatPresice(vec.y);
 	vec.z = floatPresice(vec.z);
 	vec.w = floatPresice(vec.w);
 }
+
 glm::vec4 Utils::Normalize(const glm::vec4& v) {
 	const float d = 1.0f / sqrtf(v.x*v.x + v.y*v.y + v.z*v.z);
 	return glm::vec4(v.x*d ,v.y*d , v.z*d, 1);
 }
+
 MeshModel Utils::getCameraModel() {
-	return Utils::LoadMeshModel("C:\\Users\\USER\\Documents\\GitHub\\project-mohsen-and-mohammed\\Data\\camera.obj");
+	MeshModel temp = Utils::LoadMeshModel("C:\\Users\\USER\\Documents\\GitHub\\project-mohsen-and-mohammed\\Data\\camera.obj");
+	temp.TransformVertices(Utils::Scale(glm::vec3(1, 1, -1)));
+	return  temp;
 }
+
 float Utils::FindXLine(const glm::vec2& p1, const glm::vec2& p2, const float yy) {
 	if (p1.y == p2.y) {  throw 0; }
 	if (p1.x == p2.x) { return p1.x; }
 	return /*0;*/ (-1 * (p1.y - yy)*(p1.x - p2.x) / (p1.y - p2.y)) + p1.x;
 }
+
 float Utils::FindYLine(const glm::vec2& p1, const glm::vec2& p2, const float x) {
 	if (p1.x == p2.x) { throw 0; }
 	if (p1.y == p2.y) { return p1.y; }
 	return /*0;*/ (-1 * (p1.x - x)*(p1.y - p2.y) / (p1.x - p2.x)) + p1.y;
 }
+
 float Utils::Area(const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
-	return /*fabs*/((v1.x*(v2.y - v3.y) + v2.x * (v3.y - v1.y) + v3.x * (v1.y - v2.y)) / 2.0f);
+	return fabs((v1.x*(v2.y - v3.y) - v1.y * (v2.x - v3.x) +(v2.x*v3.y - v2.y*v3.x)) / 2.0f);
 }
+
+float Utils::Area3(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3) {
+	const glm::vec3 temp1 = v2 - v1;
+	const glm::vec3 temp2 = v3 - v1;
+	const glm::vec3 cross = Utils::crossProduct(temp1, temp2);
+	return 0.5*(sqrtf(cross.x*cross.x + cross.y*cross.y + cross.z*cross.z));
+}
+
 bool Utils::DoesContain(const glm::vec2& p, const glm::vec2& v1, const glm::vec2& v2, const glm::vec2& v3) {
 	float l1 = (p.x - v1.x)*(v3.y - v1.y) - (v3.x - v1.x)*(p.y - v1.y),
 		l2 = (p.x - v2.x)*(v1.y - v2.y) - (v1.x - v2.x)*(p.y - v2.y),
