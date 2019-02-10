@@ -1,7 +1,7 @@
 #include "Light.h"
 
 Light::Light(glm::vec3 postion, glm::vec3 color, bool isParallel) :
-	position(postion),color(color), parallel(isParallel)
+	position(postion), color(color), parallel(isParallel)
 {
 }
 
