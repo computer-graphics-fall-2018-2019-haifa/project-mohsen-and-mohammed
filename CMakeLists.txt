@@ -54,11 +54,11 @@ message(STATUS ">>> OPENGL_LIBRARIES: ${OPENGL_LIBRARIES}")
 # changes when a source is added or removed then the generated build system
 # cannot know when to ask CMake to regenerate".
 file (GLOB HEADER_FILES
-      "Viewer/include/*.h")
+      "Viewer/include/*.h" "build/*.h")
  
 # Collect sources into the variable SOURCE_FILES
 file (GLOB SOURCE_FILES
-      "Viewer/src/*.cpp")
+      "Viewer/src/*.cpp" "build/*.cpp")
 file (GLOB SHADER_FILES
       "Viewer/shaders/*.glsl")
 # Create named folders for the sources within the .vcproj

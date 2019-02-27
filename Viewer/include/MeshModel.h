@@ -48,6 +48,8 @@ public:
 
 	const glm::vec4& GetColor() const;
 	void SetColor(const glm::vec4& color);
+	
+	const Face& getFace(int index)const;
 
 	const std::string& GetModelName();
 

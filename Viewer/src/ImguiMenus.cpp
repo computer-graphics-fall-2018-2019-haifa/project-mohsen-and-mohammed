@@ -22,7 +22,7 @@ bool showCameraWindow = true;
 bool perspective = false;
 bool orthographic = !perspective;
 glm::vec4 clearColor = glm::vec4(0.5f, 0.5f, 0.5f, 1.00f);
-glm::vec3 meshColor = glm::vec3(0.0f, 0.0f, 0.0f);
+glm::vec3 meshColor = glm::vec3(1.0f, 1.0f, 1.0f);
 static bool temp = false;
 static float worldRotateX = 0.0f;
 static float worldRotateY = 0.0f;
@@ -38,7 +38,7 @@ static float eye[3] = {0,0,10};
 static float at[3] = {0,0,0};
 static float y[3] = {0,1,0};
 static float translate[3] = { 0,0,0 };
-static float scale[3] = { 35,35,35 };
+static float scale[3] = { 3,3,3 };
 static float WorldTranslate[3] = { 0,0,0 };
 
 static float cameraRotateX = 0.0f;
@@ -63,7 +63,12 @@ static float tiltY = 0.0;
 static float tiltZ = 0.0;
 
 static float ambientColor[3] = {0.5,0.5,0.5};
-
+static bool ambient = true;
+static bool diffuse = true;
+static bool specular = true;
+static bool flat = true;
+static bool goroud = false;
+static bool phong = false;
 //color info
 static void updateAmbient(Scene& scene) {
 	scene.setAmbient(glm::vec3(ambientColor[0], ambientColor[1], ambientColor[2]));
@@ -221,6 +226,15 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		ImGui::Text("Ambient Light color:");
 		ImGui::ColorEdit3("",ambientColor);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Text("Shading:");
+		ImGui::Checkbox("Flat", &flat);
+		if (flat) { phong = false; goroud = false; }
+		ImGui::SameLine();
+		ImGui::Checkbox("Goroud", &goroud);
+		if (goroud) { flat = false; phong = false; }
+		ImGui::SameLine();
+		ImGui::Checkbox("Phong", &phong);
+		if (phong) { flat = false; goroud = false; }
 		ImGui::End();
 	}
 	// 4. Demonstrate creating a fullscreen menu bar and populating it.
@@ -264,6 +278,9 @@ void DrawImguiMenus(ImGuiIO& io, Scene& scene)
 		meshColor.z = color[2];
 		//rotations in model frame
 			//X axis
+		ImGui::Checkbox("Ambient", &ambient);
+		ImGui::Checkbox("Diffuse",&diffuse);
+		ImGui::Checkbox("Specular", &specular);
 		ImGui::SliderFloat("X rotate Model Frame", &rotateX, 0.0f, 360.0f);
 		//Y axis
 		static float ThetaY = 0.0f;
@@ -445,4 +462,28 @@ bool PrintAllModels_() {
 }
 bool PrintAllCameras_() {
 	return printAllCameras;
+}
+
+bool Ambient() {
+	return ambient;
+}
+
+bool Difuse() {
+	return diffuse;
+}
+
+bool Specular() {
+	return specular;
+}
+
+bool Flat() {
+	return flat;
+}
+
+bool Goroud() {
+	return goroud;
+}
+
+bool Phong() {
+	return phong;
 }

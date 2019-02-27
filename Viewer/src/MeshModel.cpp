@@ -330,3 +330,7 @@ void MeshModel::TransformVertices(const glm::mat3& transform) {
 		vertices.at(i) = glm::transpose(transform)*vertices.at(i);
 	}
 }
+
+const Face& MeshModel::getFace(int index)const {
+	return faces.at(index);
+}

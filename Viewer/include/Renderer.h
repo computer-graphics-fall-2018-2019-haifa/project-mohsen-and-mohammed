@@ -49,9 +49,15 @@ private:
 	void PrintModel(const Scene& scene,std::shared_ptr<const MeshModel> model,glm::mat4 matrix1/*, glm::mat4 matrix2*/,const glm::vec3& col);
 	void PrintAllModels(const Scene& scene);
 	void PrintAllCameras(const Scene& scene);
-	void PrintTraingle(const Scene& scene,const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& col);
-	void PrintTraingle(const Scene&scene,const std::vector<glm::vec3>& vertix, glm::mat4 transform/*, glm::mat4 transform2*/, const glm::vec3& col);
-	glm::vec3 calculateColor(const Scene& scene,const glm::vec3& position,const glm::vec3& materialColor)const;
+	void PrintTraingle(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene,const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3, const glm::vec3& col,glm::mat4 transform);
+	void PrintTraingle(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene&scene,const std::vector<glm::vec3>& vertix, glm::mat4 transform, const glm::vec3& col);
+	glm::vec3 calculateColor(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene,const glm::vec3& position,const glm::vec3& materialColor,glm::mat4 transform)const;
+	void PrintAllPointLights(const Scene& scene);
+	void PrintCircle(glm::vec2 position, int radius);
+	glm::vec3 calculateDiffuse(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor,glm::mat4 transform)const;
+	glm::vec3 calculateSpecular(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform)const;
+	glm::vec3 goroudDiffuse(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform)const;
+	glm::vec3 goroudSpecular(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform)const;
 public:
 	Renderer(int viewportWidth, int viewportHeight, int viewportX = 0, int viewportY = 0);
 	~Renderer();

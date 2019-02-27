@@ -89,7 +89,7 @@ void Renderer::createBuffers(int viewportWidth, int viewportHeight)
 		for (int y = 0; y < viewportHeight; y++)
 		{
 			putPixel(x, y, glm::vec3(0.8f, 0.8f, 0.8f));
-			putZ(x,y, maxFloat);
+			putZ(x,y, -maxFloat);
 		}
 	}
 }
@@ -101,7 +101,7 @@ void Renderer::ClearColorBuffer(const glm::vec3& color)
 		for (int j = 0; j < viewportHeight; j++)
 		{
 			putPixel(i, j, color);
-			putZ(i, j, maxFloat);
+			putZ(i, j, -maxFloat);
 		}
 	}
 }
@@ -121,6 +121,7 @@ void Renderer::SetViewport(int viewportWidth, int viewportHeight, int viewportX,
 
 void Renderer::Render(const Scene& scene)
 {
+	Renderer::PrintAllPointLights(scene);
 	//print world frame
 	Renderer::PrintWorldFrame(scene);
 	if (PrintAllCameras_()) {
@@ -142,8 +143,9 @@ void Renderer::Render(const Scene& scene)
 	Renderer::PrintModelFrame(scene);
 	//print model
 	glm::vec4 col = activeModel->GetColor();
+	if (col.x == 0 && col.y == 0 && col.z == 0 && Goroud()) std::cout << "HHHJNB" << std::endl;
 	//glm::mat4 finalMt = glm::transpose(pT)*glm::transpose(IvT)*glm::transpose(worldT)*glm::transpose(modelT);
-	Renderer::PrintModel(scene,activeModel, finalM,glm::vec3(col.x,col.y,col.z));
+	Renderer::PrintModel(scene,activeModel, finalM,col);
 	//print normal per face
 	if (DrawFaceNormal()) {
 		Renderer::PrintNormalPerFace(activeModel, finalM);
@@ -517,11 +519,12 @@ void Renderer::UpdateModelColor(const Scene& scene)const {
 void Renderer::PrintModel(const Scene& scene,std::shared_ptr<const MeshModel> activeModel,glm::mat4 transform, const glm::vec3& col) {
 	for (int j = 0; j < activeModel->GetFaceCount(); j++) {
 		std::vector<glm::vec3> vertix = activeModel->GetVertices(j);
-		Renderer::PrintTraingle(scene,vertix, transform, col);
-//	for (int i = 0; i < 3; i++) {
-//			Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, glm::vec3(1,0,0));
+		//if (col.x == 0 && col.y == 0 && col.z == 0) std::cout << "RRRT" << std::endl;
+		Renderer::PrintTraingle(activeModel,j,scene,vertix, transform, activeModel->GetColor());
+	//for (int i = 0; i < 3; i++) {
+	//		Renderer::PrintLine(vertix.at(i), vertix.at((i + 1) % 3)- vertix.at(i), transform, glm::vec3(1,0,0));
 			
-//	}
+	//}
 		vertix.clear();
 	}
 }
@@ -558,7 +561,7 @@ void Renderer::PrintAllCameras(const Scene& scene) {
 	}
 }
 
-void Renderer::PrintTraingle(const Scene& scene,const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,const glm::vec3& col) {
+void Renderer::PrintTraingle(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene,const glm::vec3& p1, const glm::vec3& p2, const glm::vec3& p3,const glm::vec3& col,glm::mat4 transform) {
 	int xMax = max(p1.x, p2.x, p3.x), yMax = max(p1.y,p2.y,p3.y);
 	int xMin = min(p1.x, p2.x, p3.x), yMin = min(p1.y,p2.y,p3.y);
 	if (xMax == xMin || yMax == yMin) {return; }
@@ -570,9 +573,9 @@ void Renderer::PrintTraingle(const Scene& scene,const glm::vec3& p1, const glm::
 		for (int j = yMin; j <= yMax;j++) {
 			if (Utils::DoesContain(glm::vec2(i, j), glm::vec2(p1.x, p1.y), glm::vec2(p2.x, p2.y), glm::vec2(p3.x, p3.y))) {
 				float z = Utils::ZInterpolation(i,j,p1,p2,p3);
-				if (z< getZ(i,j)) {
+				if (z> getZ(i,j)) {
 					Renderer::putZ(i, j, z);
-					const glm::vec3 newColor = calculateColor(scene, glm::vec3(i, j, z), col);
+					const glm::vec3 newColor = calculateColor(activeModel,faceIndex,scene, glm::vec3(i, j, z), col,transform);
 					Renderer::putPixel(i, j, newColor);
 				}
 			}
@@ -580,21 +583,234 @@ void Renderer::PrintTraingle(const Scene& scene,const glm::vec3& p1, const glm::
 	}
 }
 
-void Renderer::PrintTraingle(const Scene& scene, const std::vector<glm::vec3>& vertix, glm::mat4 transform,const glm::vec3& col) {
+void Renderer::PrintTraingle(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene, const std::vector<glm::vec3>& vertix, glm::mat4 transform,const glm::vec3& col) {
 	if (vertix.size() != 3) { std::cout << 123123 << std::endl; return; }
 	const glm::vec3 p1 = transform*Utils::HomCoordinats(vertix.at(0));
 	const glm::vec3 p2 = transform*Utils::HomCoordinats(vertix.at(1));
 	const glm::vec3 p3 = transform*Utils::HomCoordinats(vertix.at(2));
-	Renderer::PrintTraingle(scene,p1, p2,p3,col);
+	Renderer::PrintTraingle(activeModel,faceIndex,scene,p1, p2,p3,col,transform);
 }
 
-glm::vec3 Renderer::calculateColor(const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor)const {
+glm::vec3 Renderer::calculateColor(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor,glm::mat4 transform)const {
 	glm::vec3 newColor = materialColor;
+	//if (materialColor.x == 0 && materialColor.y == 0 && materialColor.z == 0) std::cout << "YYYF" << std::endl;
 	//ambiet color
-	newColor *=scene.getAmbient();
+	if (Ambient()) {
+		newColor *= scene.getAmbient();
+	}
 	//difuse
-
+	if (Difuse()) {
+		newColor += Renderer::calculateDiffuse(activeModel, faceIndex, scene, position, materialColor, transform);
+	}
 	//specular
-
+	if (Specular()) {
+		newColor += Renderer::calculateSpecular(activeModel, faceIndex, scene, position, materialColor, transform);
+	}
 	return newColor;
+}
+
+void Renderer::PrintAllPointLights(const Scene& scene) {
+	for (int i = 0; i < scene.getLightCount(); i++) {
+		const Light temp = scene.getLight(i);
+		Renderer::PrintCircle(temp.getPostion(), 5);
+	}
+}
+
+void Renderer::PrintCircle(glm::vec2 pos, int radius) {
+	//we check if pos coordinates are coordinates of legal pixels
+	if (pos.x <= 0 || pos.x >= viewportWidth)return;
+	if (pos.y <= 0 || pos.y >= viewportHeight)return;
+
+	int maxX=0, maxY=0, minX=0, minY=0;
+
+	(pos.y + radius) >= viewportHeight ? maxY = viewportHeight - 1 : maxY = pos.y + radius;
+	(pos.y - radius) <= 0 ? minY = 1 : minY = pos.y - radius;
+	(pos.x + radius) >= viewportWidth ? maxX = viewportWidth - 1 : maxX = pos.x + radius;
+	(pos.x - radius) <= 0 ? minX = 1 : minX = pos.x - radius;
+
+	for (int i = minX; i <= maxX; i++) {
+		for (int j = minY; j < maxY; j++) {
+			const float dxs = (pos.x - i)*(pos.x - i);
+			const float dys = (pos.y-j)*(pos.y-j);
+			if (sqrt(dxs + dys) <= radius)
+				putPixel(i, j, glm::vec3(1, 1, 0));
+		}
+	}
+}
+
+glm::vec3 Renderer::calculateDiffuse(std::shared_ptr<const MeshModel> activeModel, int faceIndex,const Scene& scene
+	, const glm::vec3& position, const glm::vec3& materialColor,glm::mat4 transform)const {
+	if (Goroud()) {
+		//return goroudDiffuse(activeModel,faceIndex,scene,position,materialColor,transform);
+	//	if (materialColor.x == 0 && materialColor.y == 0 && materialColor.z == 0) std::cout << "LLKK" << std::endl;
+		return goroudDiffuse(activeModel, faceIndex, scene, position, materialColor, transform);
+	}
+	glm::vec3 newColor(0);
+	glm::mat4 mat =glm::transpose(activeModel->GetModelTransformation());
+	mat = glm::transpose(scene.GetAciveModel()->GetWorldTransformation())*mat;
+	float dotProduct = 0;
+	glm::vec3 n(0);
+	glm::vec3 l(0);
+	for (int i = 0; i < scene.getLightCount(); i++) {
+		if (scene.getLight(i).isParallel()) continue;
+		n= glm::vec3(0);
+		l= glm::vec3(0);
+		
+		if (Flat()) {
+			n = scene.GetAciveModel()->GetFaceNormalDirection(faceIndex);
+			n = mat * Utils::HomCoordinats(n);
+			glm::vec3 faceCenter = mat * (Utils::HomCoordinats(scene.GetAciveModel()->GetFaceCenter(faceIndex)));
+			glm::vec3 temp = scene.getLight(i).getPostion();
+			l = scene.getLight(i).getPostion() - glm::vec3(faceCenter.x, faceCenter.y, faceCenter.z);
+			
+		}else {
+			l = scene.getLight(i).getPostion() - position;
+			std::vector<glm::vec3> P = activeModel->GetVertices(faceIndex);
+			std::vector<glm::vec3> N = activeModel->GetNormals(faceIndex);
+			for (int j = 0; j < 3;j++) {
+				P.at(j) = transform * Utils::HomCoordinats(P.at(j));
+				N.at(j) = mat * Utils::HomCoordinats(N.at(j));
+			}
+			//std::cout << "normal" << std::endl;
+			n = Utils::InterpolateNormal(P.at(0), P.at(1), P.at(2), position, N.at(0), N.at(1), N.at(2));
+		}
+		n = Utils::Normalize(n);
+		l = Utils::Normalize(l);
+		const float dotProduct = Utils::dotProduct(l, n);
+		newColor += scene.getLight(i).getColor()*materialColor*fabs(dotProduct);
+	}
+	if (newColor == glm::vec3(0))
+		return materialColor;
+	return newColor;
+}
+
+glm::vec3 Renderer::calculateSpecular(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene, 
+						const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform) const{
+	if (Goroud()) {
+		return goroudSpecular(activeModel, faceIndex, scene, position, materialColor, transform);
+	}
+	glm::vec3 newColor(0);
+	glm::mat4 mat = glm::transpose(activeModel->GetModelTransformation());
+	mat = glm::transpose(activeModel->GetWorldTransformation())*mat;
+	glm::vec3 l(0);	glm::vec3 v(0);
+	glm::vec3 n(0); glm::vec3 r(0);
+	for (int i = 0; i < scene.getLightCount(); i++) {
+		if (scene.getLight(i).isParallel())continue;
+		if (Flat()) {
+			n = scene.GetAciveModel()->GetFaceNormalDirection(faceIndex);
+			n = mat * Utils::HomCoordinats(n);
+			n = Utils::Normalize(n);
+			glm::vec3 faceCenter = mat * (Utils::HomCoordinats(scene.GetAciveModel()->GetFaceCenter(faceIndex)));
+			glm::vec3 temp = scene.getLight(i).getPostion();
+			l = scene.getLight(i).getPostion() - glm::vec3(faceCenter.x, faceCenter.y, faceCenter.z);
+			l = Utils::Normalize(l);
+			r = l - 2 * Utils::dotProduct(n, l)*n;
+			v = GetEye() - faceCenter;
+		}
+		else {
+			l = scene.getLight(i).getPostion() - position;
+			std::vector<glm::vec3> P = activeModel->GetVertices(faceIndex);
+			std::vector<glm::vec3> N = activeModel->GetNormals(faceIndex);
+			for (int j = 0; j < 3; j++) {
+				P.at(j) = transform * Utils::HomCoordinats(P.at(j));
+				N.at(j) = transform * Utils::HomCoordinats(N.at(j));
+			}
+			//std::cout << "normal" << std::endl;
+			n = Utils::InterpolateNormal(P.at(0), P.at(1), P.at(2), position, N.at(0), N.at(1), N.at(2));
+			l = Utils::Normalize(l); n = Utils::Normalize(n);
+			r = l - 2 * Utils::dotProduct(n, l)*n;
+			v = GetEye() - position;
+		}
+		r = Utils::Normalize(r);
+		v = Utils::Normalize(v);
+		newColor += scene.getLight(i).getColor()*fabs(Utils::dotProduct(r, v))*materialColor;
+	}
+	if (newColor == glm::vec3(0))
+		return materialColor;
+	return newColor;
+}
+
+glm::vec3 Renderer::goroudDiffuse(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene
+	, const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform)const {
+	//frist we calculate the colors at vertices
+	glm::mat4 mat = glm::transpose(activeModel->GetModelTransformation());
+	mat = glm::transpose(scene.GetAciveModel()->GetWorldTransformation())*mat;
+	std::vector<glm::vec3> P = activeModel->GetVertices(faceIndex);
+	std::vector<glm::vec3> N = activeModel->GetNormals(faceIndex);
+	std::vector<glm::vec3> colors;
+	for (int i = 0; i < 3; i++) {
+		P.at(i) = transform * Utils::HomCoordinats(P.at(i));
+		N.at(i) = mat * Utils::HomCoordinats(N.at(i));
+		colors.push_back(glm::vec3(0));
+	}
+	for (int j = 0; j < scene.getLightCount(); j++) {
+		if (scene.getLight(j).isParallel())continue;
+		for (int i = 2; i >=0 ; i--) {
+			glm::vec3 l = scene.getLight(j).getPostion() - P.at(i);
+			l = Utils::Normalize(l);
+			glm::vec3 n = Utils::Normalize(N.at(i));
+			colors.at(i)+=(GetMeshColor()*scene.getLight(j).getColor()*fabs(Utils::dotProduct(l, n)));
+		}
+	}
+	//std::cout << "color" << std::endl;
+	glm::vec3 temp = Utils::InterpolateNormal(P.at(0), P.at(1), P.at(2), position, colors.at(0), colors.at(1), colors.at(2));
+	//std::cout << "14-" << temp.x << " " << temp.y << " " << temp.z << std::endl;
+	return Utils::InterpolateNormal(P.at(0), P.at(1), P.at(2),position,colors.at(0),colors.at(1),colors.at(2));
+}
+
+glm::vec3 Renderer::goroudSpecular(std::shared_ptr<const MeshModel> activeModel, int faceIndex, const Scene& scene, const glm::vec3& position, const glm::vec3& materialColor, glm::mat4 transform)const {
+	std::vector<glm::vec3> P = activeModel->GetVertices(faceIndex);
+	std::vector<glm::vec3> N = activeModel->GetNormals(faceIndex);
+	for (int i = 0; i < 3; i++) {
+		P.at(i) = transform * Utils::HomCoordinats(P.at(i));
+		N.at(i) = transform * Utils::HomCoordinats(N.at(i));
+		//colors.push_back(glm::vec3(0));
+	}
+	glm::vec3 color1(0); glm::vec3 n(0); glm::vec3 r(0);
+	glm::vec3 color2(0); glm::vec3 l(0);
+	glm::vec3 color3(0); glm::vec3 v(0);
+	for (int i = 0; i < scene.getLightCount(); i++) {
+		//we calculate the color of first vertice
+		{
+			n = N.at(0);
+			n = transform * Utils::HomCoordinats(n);
+			n = Utils::Normalize(n);
+			l = scene.getLight(i).getPostion() - P.at(0);
+			l = Utils::Normalize(l);
+			r = l - 2 * Utils::dotProduct(n, l)*n;
+			r = Utils::Normalize(r);
+			v = GetEye() - position;
+			v = Utils::Normalize(v);
+			color1 += scene.getLight(i).getColor()*fabs(Utils::dotProduct(r, v))*materialColor;
+		}
+		//we calculate the color of the sexond vertice
+		{
+			n = N.at(1);
+			n = transform * Utils::HomCoordinats(n);
+			n = Utils::Normalize(n);
+			l = scene.getLight(i).getPostion() - P.at(1);
+			l = Utils::Normalize(l);
+			r = l - 2 * Utils::dotProduct(n, l)*n;
+			r = Utils::Normalize(r);
+			v = GetEye() - position;
+			v = Utils::Normalize(v);
+			color2+= scene.getLight(i).getColor()*fabs(Utils::dotProduct(r, v))*materialColor;
+		}
+		//we calcuate the color of the third vertice
+		{
+			n = N.at(2);
+			n = transform * Utils::HomCoordinats(n);
+			n = Utils::Normalize(n);
+			l = scene.getLight(i).getPostion() - P.at(2);
+			l = Utils::Normalize(l);
+			r = l - 2 * Utils::dotProduct(n, l)*n;
+			r = Utils::Normalize(r);
+			v = GetEye() - position;
+			v = Utils::Normalize(v);
+			color3 += scene.getLight(i).getColor()*fabs(Utils::dotProduct(r, v))*materialColor;
+		}
+	}
+	//interpolate color
+	
+	return Utils::InterpolateNormal(P.at(0),P.at(1),P.at(2),position,color1,color2,color2);
 }

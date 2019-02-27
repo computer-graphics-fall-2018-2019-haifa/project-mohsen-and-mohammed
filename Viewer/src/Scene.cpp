@@ -116,3 +116,19 @@ void Scene::setAmbient(const glm::vec3& newColor) {
 glm::vec3 Scene::getAmbient()const {
 	return ambientColor;
 }
+
+void Scene::AddLight(const Light& newLight) {
+	lights.push_back(newLight);
+}
+
+int Scene::getLightCount()const {
+	return lights.size();
+}
+
+void Scene::RemoveLight(int index) {
+	lights.erase(lights.begin()+index);
+}
+
+const Light& Scene::getLight(int index)const {
+	return lights.at(index);
+}

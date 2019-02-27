@@ -48,6 +48,11 @@ public:
 	static float Area3(const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3);
 	static float ZInterpolation(int i,int j,const glm::vec3& v1, const glm::vec3& v2, const glm::vec3& v3);
 	static float ZInterpolation(int i, int j, const glm::vec3& v1, const glm::vec3& v2);
+
+	static glm::vec3 InterpolateNormal(const glm::vec3& p1,const glm::vec3& p2,const glm::vec3& p3,const glm::vec3& q,
+										const glm::vec3& n1,const glm::vec3& n2,const glm::vec3& n3);
+
+	
 private:
 	static std::string GetFileName(const std::string& filePath);
 };

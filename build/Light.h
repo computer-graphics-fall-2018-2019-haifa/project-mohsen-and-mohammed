@@ -18,5 +18,3 @@ public:
 
 	bool isParallel()const;
 };
-
-

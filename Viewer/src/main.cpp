@@ -51,6 +51,7 @@ int main(int argc, char ** argv)
 	scene.AddCamera(newC);
 	scene.AddCamera(newC1);
 	scene.SetActiveCameraIndex(1);
+	scene.AddLight(Light(glm::vec3(0, 50, 50), glm::vec3(0.5), false));
 	// Setup ImGui
 	ImGuiIO& io = SetupDearImgui(window);
 
@@ -164,4 +165,3 @@ void Cleanup(GLFWwindow* window)
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
-

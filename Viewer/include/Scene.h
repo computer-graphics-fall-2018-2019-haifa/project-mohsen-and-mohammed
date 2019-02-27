@@ -7,7 +7,7 @@
 #include <memory>
 #include "MeshModel.h"
 #include "Camera.h"
-#include "Light.h"
+#include "C:\Users\USER\Documents\GitHub\project-mohsen-and-mohammed\build\Light.h"
 /*
  * Scene class.
  * This class holds all the scene information (models, cameras, lights, etc..)
@@ -38,6 +38,12 @@ public:
 
 	void SetActiveModelIndex(int index);
 	const int GetActiveModelIndex() const;
+
+	void AddLight(const Light& light);
+	int getLightCount()const;
+	void RemoveLight(int index);
+	const Light& getLight(int index)const;
+
 
 	std::shared_ptr< MeshModel> GetAciveModel()const;
 	std::shared_ptr<MeshModel> GetModelIndex(const int index)const;

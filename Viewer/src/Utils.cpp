@@ -301,3 +301,18 @@ float Utils::ZInterpolation(int i, int j, const glm::vec3& v1, const glm::vec3& 
 		return t * v1.z + (1 - t)*v2.z;
 	}
 }
+
+glm::vec3 Utils::InterpolateNormal(const glm::vec3& p1,const glm::vec3& p2,const glm::vec3& p3,const glm::vec3& q,
+	const glm::vec3& n1,const glm::vec3& n2,const glm::vec3& n3) {
+	//we assume that !(p1==p2 || p2==p3 || p1==p3) 
+	const float area = Utils::Area3(p1, p2, p3);
+	const float area1 = Utils::Area3(p2, p3, q);
+	const float area2 = Utils::Area3(p1, p3, q);
+	const float area3 = Utils::Area3(p1, p2, q);
+	const float a1 = area1 / area, a2 = area2 / area, a3 = area3 / area;
+	//if (area1 > area || area2 > area || area3 > area)std::cout << "WTF!" << std::endl;
+	const float newZ = a1 * n1.z + a2 * n2.z + a3 * n3.z;
+	const float newY = a1 * n1.y + a2 * n2.y + a3 * n3.y;
+	const float newX = a1 * n1.x + a2 * n2.x + a3 * n3.x;
+	return glm::vec3(newX, newY, newZ);
+}
