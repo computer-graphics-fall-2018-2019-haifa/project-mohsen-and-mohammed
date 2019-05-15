@@ -7,7 +7,7 @@
 #include <memory>
 #include "MeshModel.h"
 #include "Camera.h"
-#include "C:\Users\USER\Documents\GitHub\project-mohsen-and-mohammed\build\Light.h"
+#include "Light.h"
 /*
  * Scene class.
  * This class holds all the scene information (models, cameras, lights, etc..)
